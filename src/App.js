@@ -575,12 +575,14 @@ const HotWorkChecklist = () => {
             <div>
               <label className="block text-sm font-medium mb-2">{t.certLabel}</label>
               <input
-                type="text"
-                value={certNumber}
-                onChange={(e) => setCertNumber(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg"
-                maxLength={7}
-              />
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  value={certNumber}
+  onChange={(e) => setCertNumber(e.target.value)}
+  className="w-full px-4 py-2 border rounded-lg"
+  maxLength={7}
+/>
             </div>
             <button
               onClick={handleLogin}
@@ -679,13 +681,15 @@ const HotWorkChecklist = () => {
                 onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
                 className="px-3 py-2 border rounded"
               />
-              <input
-                type="tel"
-                placeholder={t.phone}
-                value={formData.clientPhone}
-                onChange={(e) => setFormData(prev => ({ ...prev, clientPhone: e.target.value }))}
-                className="px-3 py-2 border rounded"
-              />
+             <input
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  placeholder={t.phone}
+  value={formData.clientPhone}
+  onChange={(e) => setFormData(prev => ({ ...prev, clientPhone: e.target.value }))}
+  className="px-3 py-2 border rounded"
+/>
               <input
                 type="email"
                 placeholder={t.email}
@@ -736,12 +740,14 @@ const HotWorkChecklist = () => {
                 className="px-3 py-2 border rounded"
               />
               <input
-                type="tel"
-                placeholder={t.phone}
-                value={formData.executorPhone}
-                onChange={(e) => setFormData(prev => ({ ...prev, executorPhone: e.target.value }))}
-                className="px-3 py-2 border rounded"
-              />
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  placeholder={t.phone}
+  value={formData.executorPhone}
+  onChange={(e) => setFormData(prev => ({ ...prev, executorPhone: e.target.value }))}
+  className="px-3 py-2 border rounded"
+/>
               <input
                 type="email"
                 placeholder={t.email}
@@ -750,12 +756,14 @@ const HotWorkChecklist = () => {
                 className="px-3 py-2 border rounded"
               />
               <input
-                type="text"
-                placeholder={t.certNr}
-                value={formData.executorCert}
-                onChange={(e) => setFormData(prev => ({ ...prev, executorCert: e.target.value }))}
-                className="px-3 py-2 border rounded"
-              />
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  placeholder={t.certNr}
+  value={formData.executorCert}
+  onChange={(e) => setFormData(prev => ({ ...prev, executorCert: e.target.value }))}
+  className="px-3 py-2 border rounded"
+/>
             </div>
             {formData.executorEmail && (
   <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
@@ -799,19 +807,23 @@ const HotWorkChecklist = () => {
       className="px-3 py-2 border rounded"
     />
     <input
-      type="tel"
-      placeholder={t.phone}
-      value={formData.watchPhone}
-      onChange={(e) => setFormData(prev => ({ ...prev, watchPhone: e.target.value }))}
-      className="px-3 py-2 border rounded"
-    />
-    <input
-      type="text"
-      placeholder={t.certNr}
-      value={formData.watchCert}
-      onChange={(e) => setFormData(prev => ({ ...prev, watchCert: e.target.value }))}
-      className="px-3 py-2 border rounded"
-    />
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  placeholder={t.phone}
+  value={formData.watchPhone}
+  onChange={(e) => setFormData(prev => ({ ...prev, watchPhone: e.target.value }))}
+  className="px-3 py-2 border rounded"
+/>
+<input
+  type="tel"
+  inputMode="numeric"
+  pattern="[0-9]*"
+  placeholder={t.certNr}
+  value={formData.watchCert}
+  onChange={(e) => setFormData(prev => ({ ...prev, watchCert: e.target.value }))}
+  className="px-3 py-2 border rounded"
+/>
   </div>
             <div>
               <label className="block font-medium mb-2">{t.signature}</label>
