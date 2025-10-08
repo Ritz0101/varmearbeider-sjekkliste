@@ -19,11 +19,13 @@ const HotWorkChecklist = () => {
     clientPhone: '',
     clientEmail: '',
     clientSignature: '',
+    sendToClient: true,
     executorName: '',
     executorPhone: '',
     executorEmail: '',
     executorCert: '',
     executorSignature: '',
+    sendToExecutor: true,
     watchName: '',
     watchPhone: '',
     watchCert: '',
@@ -287,6 +289,9 @@ const HotWorkChecklist = () => {
     pdfContent.style.padding = '20px';
     pdfContent.style.fontFamily = 'Arial, sans-serif';
     pdfContent.style.maxWidth = '800px';
+    const brannvernLogoSrc = document.querySelector('img[alt="Brannvernforeningen"]').src;
+    const finansNorgeLogoSrc = document.querySelector('img[alt="Finans Norge Forsikringsdrift"]').src;
+
     
     let imagesHTML = '';
     if (images.length > 0) {
@@ -311,8 +316,8 @@ const HotWorkChecklist = () => {
     
     const explosiveHTML = formData.explosiveArea ? '<div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 10px; margin: 15px 0; font-size: 12px;"><strong>☑ ' + t.explosiveTitle + '</strong><br><strong>15.</strong> ' + t.items[14] + '<br><em>Kontrollør: ' + (formData.controllerName || '-') + '</em></div>' : '';
     
-    pdfContent.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;"><div style="background: #dc2626; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Brannvernforeningen</div><div style="background: #1e3a8a; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Finans Norge</div></div><h1 style="font-size: 20px; margin-bottom: 10px;">' + t.title + '</h1><p style="font-size: 12px; color: #666; margin-bottom: 20px;">' + t.subtitle + '</p><div style="margin-bottom: 15px;"><strong>' + t.workType + '</strong> ' + (formData.workType || '-') + '</div><div style="margin-bottom: 15px;"><strong>' + t.location + '</strong> ' + (formData.location || '-') + '</div><div style="display: flex; gap: 20px; margin-bottom: 15px;"><div style="flex: 1;"><strong>' + t.startDateTime + '</strong><br>' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '</div><div style="flex: 1;"><strong>' + t.endDateTime + '</strong><br>' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '</div></div><div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;"><h3 style="font-size: 14px; margin-bottom: 10px;">' + t.client + '</h3><p><strong>Navn:</strong> ' + (formData.clientName || '-') + '</p><p><strong>' + t.phone + '</strong> ' + (formData.clientPhone || '-') + '</p><p><strong>' + t.email + '</strong> ' + (formData.clientEmail || '-') + '</p>' + (formData.clientSignature ? '<img src="' + formData.clientSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>') + '</div><div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;"><h3 style="font-size: 14px; margin-bottom: 10px;">' + t.executor + '</h3><p><strong>Navn:</strong> ' + (formData.executorName || '-') + '</p><p><strong>' + t.phone + '</strong> ' + (formData.executorPhone || '-') + '</p><p><strong>' + t.email + '</strong> ' + (formData.executorEmail || '-') + '</p><p><strong>' + t.certNr + '</strong> ' + (formData.executorCert || '-') + '</p>' + (formData.executorSignature ? '<img src="' + formData.executorSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>') + '</div><div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;"><h3 style="font-size: 14px; margin-bottom: 10px;">' + t.fireWatch + '</h3><p><strong>Navn:</strong> ' + (formData.watchName || '-') + '</p><p><strong>' + t.phone + '</strong> ' + (formData.watchPhone || '-') + '</p><p><strong>' + t.certNr + '</strong> ' + (formData.watchCert || '-') + '</p>' + (formData.watchSignature ? '<img src="' + formData.watchSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>') + '</div><div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 20px;"><h2 style="font-size: 16px; margin-bottom: 15px;">' + t.safetyReq + '</h2><h3 style="font-size: 14px; margin-bottom: 10px; font-weight: bold;">' + t.beforeWork + '</h3>' + checklistBeforeHTML + explosiveHTML + '<h3 style="font-size: 14px; margin-bottom: 10px; margin-top: 20px; font-weight: bold;">' + t.afterWork + '</h3>' + checklistAfterHTML + '</div>' + imagesHTML + '<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 10px; color: #666;"><p>Generert: ' + new Date().toLocaleDateString('nb-NO') + ' ' + new Date().toLocaleTimeString('nb-NO') + '</p></div>';
-    
+    pdfContent.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;"><img src="' + brannvernLogoSrc + '" alt="Brannvernforeningen" style="height: 40px;"><img src="' + finansNorgeLogoSrc + '" alt="Finans Norge Forsikringsdrift" style="height: 40px;"></div>'
+
     const printWindow = window.open('', '_blank');
     printWindow.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument') + '</title><style>body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }@media print {body { margin: 0; }@page { margin: 1cm; }}</style></head><body>' + pdfContent.innerHTML + '</body></html>');
     printWindow.document.close();
@@ -325,67 +330,82 @@ const HotWorkChecklist = () => {
   const sendEmail = () => {
     const clientEmail = formData.clientEmail;
     const executorEmail = formData.executorEmail;
+    const sendToClient = formData.sendToClient;
+    const sendToExecutor = formData.sendToExecutor;
     
-    if (!clientEmail || !executorEmail) {
-      alert('Vennligst fyll inn e-postadresser for oppdragsgiver og utførende');
+    // Bygg liste over mottakere basert på valg
+    const recipients = [];
+    if (sendToClient && clientEmail) recipients.push(clientEmail);
+    if (sendToExecutor && executorEmail) recipients.push(executorEmail);
+    
+    if (recipients.length === 0) {
+      alert('Vennligst velg minst én mottaker og fyll inn e-postadresse');
       return;
     }
-
+  
     const subject = encodeURIComponent('Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument'));
     
     const checklistBefore = t.items.slice(0, 14).map((item, i) => {
       const checked = formData.checklist[i] ? '[X]' : '[ ]';
       return checked + ' ' + (i + 1) + '. ' + item;
-    }).join('\n');
+    }).join('%0D%0A');
     
     const checklistAfter = t.items.slice(15, 18).map((item, i) => {
       const checked = formData.checklist[i + 15] ? '[X]' : '[ ]';
       return checked + ' ' + (i + 16) + '. ' + item;
-    }).join('\n');
+    }).join('%0D%0A');
     
-    const explosiveText = formData.explosiveArea ? '\n[X] EKSPLOSJONSFARLIGE ROM\nKontrollor: ' + (formData.controllerName || '-') + '\n' : '';
+    const explosiveText = formData.explosiveArea ? '%0D%0A[X] EKSPLOSJONSFARLIGE ROM%0D%0AKontrollor: ' + (formData.controllerName || '-') + '%0D%0A' : '';
     
-    const imagesText = images.length > 0 ? '\n\nDOKUMENTASJONSBILDER: ' + images.length + ' stk' : '';
+    const imagesText = images.length > 0 ? '%0D%0A%0D%0ADOKUMENTASJONSBILDER: ' + images.length + ' stk' : '';
     
-    const body = 'SJEKKLISTE FOR VARME ARBEIDER\n' +
-      new Date().toLocaleDateString('nb-NO') + '\n\n' +
-      'ARBEIDETS ART: ' + (formData.workType || '-') + '\n' +
-      'ARBEIDSPLASS: ' + (formData.location || '-') + '\n\n' +
-      'START: ' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '\n' +
-      'SLUTT: ' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '\n\n' +
-      '--- OPPDRAGSGIVER ---\n' +
-      'Navn: ' + (formData.clientName || '-') + '\n' +
-      'Telefon: ' + (formData.clientPhone || '-') + '\n' +
-      'E-post: ' + clientEmail + '\n\n' +
-      '--- UTFORENDE ---\n' +
-      'Navn: ' + (formData.executorName || '-') + '\n' +
-      'Telefon: ' + (formData.executorPhone || '-') + '\n' +
-      'E-post: ' + executorEmail + '\n' +
-      'Sertifikat: ' + (formData.executorCert || '-') + '\n\n' +
-      '--- BRANNVAKT ---\n' +
-      'Navn: ' + (formData.watchName || '-') + '\n' +
-      'Telefon: ' + (formData.watchPhone || '-') + '\n' +
-      'Sertifikat: ' + (formData.watchCert || '-') + '\n\n' +
-      '--- SIKKERHETSKRAV ---\n' +
-      'FOR ARBEIDET STARTER:\n' +
-      checklistBefore + '\n' +
-      explosiveText + '\n' +
-      'OPPFOLGING ETTER AVSLUTTET ARBEID:\n' +
+    const body = 'SJEKKLISTE FOR VARME ARBEIDER%0D%0A' +
+      new Date().toLocaleDateString('nb-NO') + '%0D%0A%0D%0A' +
+      'ARBEIDETS ART: ' + encodeURIComponent(formData.workType || '-') + '%0D%0A' +
+      'ARBEIDSPLASS: ' + encodeURIComponent(formData.location || '-') + '%0D%0A%0D%0A' +
+      'START: ' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '%0D%0A' +
+      'SLUTT: ' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '%0D%0A%0D%0A' +
+      '--- OPPDRAGSGIVER ---%0D%0A' +
+      'Navn: ' + encodeURIComponent(formData.clientName || '-') + '%0D%0A' +
+      'Telefon: ' + (formData.clientPhone || '-') + '%0D%0A' +
+      'E-post: ' + clientEmail + '%0D%0A%0D%0A' +
+      '--- UTFORENDE ---%0D%0A' +
+      'Navn: ' + encodeURIComponent(formData.executorName || '-') + '%0D%0A' +
+      'Telefon: ' + (formData.executorPhone || '-') + '%0D%0A' +
+      'E-post: ' + executorEmail + '%0D%0A' +
+      'Sertifikat: ' + (formData.executorCert || '-') + '%0D%0A%0D%0A' +
+      '--- BRANNVAKT ---%0D%0A' +
+      'Navn: ' + encodeURIComponent(formData.watchName || '-') + '%0D%0A' +
+      'Telefon: ' + (formData.watchPhone || '-') + '%0D%0A' +
+      'Sertifikat: ' + (formData.watchCert || '-') + '%0D%0A%0D%0A' +
+      '--- SIKKERHETSKRAV ---%0D%0A' +
+      'FOR ARBEIDET STARTER:%0D%0A' +
+      checklistBefore + '%0D%0A' +
+      explosiveText + '%0D%0A' +
+      'OPPFOLGING ETTER AVSLUTTET ARBEID:%0D%0A' +
       checklistAfter + 
-      imagesText + '\n\n' +
-      '---\n' +
+      imagesText + '%0D%0A%0D%0A' +
+      '---%0D%0A' +
       'Dette dokumentet er generert digitalt.';
-
-    const emailBody = encodeURIComponent(body);
-    const recipients = clientEmail + ',' + executorEmail;
+  
+    const recipientsString = recipients.join(',');
+    const mailtoLink = 'mailto:' + recipientsString + '?subject=' + subject + '&body=' + body;
     
-    window.location.href = 'mailto:' + recipients + '?subject=' + subject + '&body=' + emailBody;
+    // Prøv å åpne e-postklient
+    window.open(mailtoLink, '_self');
     
-    if (images.length > 0) {
-      setTimeout(() => {
-        alert('E-postklienten apnes na!\n\nMerk: Bildene (' + images.length + ' stk) ma legges til som vedlegg manuelt.\n\nTips: Bruk Generer PDF knappen for a lage ett dokument med alt inkludert.');
-      }, 500);
-    }
+    // Gi beskjed til brukeren
+    setTimeout(() => {
+      let recipientInfo = 'E-post vil bli sendt til:\n';
+      if (sendToClient && clientEmail) recipientInfo += '✓ Oppdragsgiver: ' + clientEmail + '\n';
+      if (sendToExecutor && executorEmail) recipientInfo += '✓ Utførende: ' + executorEmail + '\n';
+      
+      if (images.length > 0) {
+        alert(recipientInfo + '\nMerk: Bildene (' + images.length + ' stk) må legges til som vedlegg manuelt.\n\nTips: Bruk "Generer PDF" knappen først for å lage ett dokument med alt inkludert.\n\nHvis e-postklienten ikke åpnes:\n- Kopier e-postadressene manuelt\n- Åpne Gmail/Outlook\n- Lim inn informasjonen');
+      } else {
+        alert(recipientInfo + '\nHvis e-postklienten ikke åpnes:\n- Kopier e-postadressene manuelt\n- Åpne Gmail/Outlook\n- Lim inn informasjonen');
+      }
+    }, 500);
   };
 
   if (!authenticated) {
@@ -520,6 +540,17 @@ const HotWorkChecklist = () => {
                 className="px-3 py-2 border rounded"
               />
             </div>
+            {formData.clientEmail && (
+    <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
+      <input
+        type="checkbox"
+        checked={formData.sendToClient}
+        onChange={(e) => setFormData(prev => ({ ...prev, sendToClient: e.target.checked }))}
+        className="w-4 h-4"
+      />
+      <span className="text-sm font-medium">Send e-post til oppdragsgiver ({formData.clientEmail})</span>
+    </label>
+  )}
             <div>
               <label className="block font-medium mb-2">{t.signature}</label>
               <div className="relative">
@@ -572,6 +603,17 @@ const HotWorkChecklist = () => {
                 className="px-3 py-2 border rounded"
               />
             </div>
+            {formData.executorEmail && (
+    <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
+      <input
+        type="checkbox"
+        checked={formData.sendToExecutor}
+        onChange={(e) => setFormData(prev => ({ ...prev, sendToExecutor: e.target.checked }))}
+        className="w-4 h-4"
+      />
+      <span className="text-sm font-medium">Send e-post til utførende ({formData.executorEmail})</span>
+    </label>
+  )}
             <div>
               <label className="block font-medium mb-2">{t.signature}</label>
               <div className="relative">
