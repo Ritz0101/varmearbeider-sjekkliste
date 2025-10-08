@@ -289,9 +289,12 @@ const HotWorkChecklist = () => {
     pdfContent.style.padding = '20px';
     pdfContent.style.fontFamily = 'Arial, sans-serif';
     pdfContent.style.maxWidth = '800px';
-    const brannvernLogoSrc = document.querySelector('img[alt="Brannvernforeningen"]').src;
-    const finansNorgeLogoSrc = document.querySelector('img[alt="Finans Norge Forsikringsdrift"]').src;
-
+    
+    // Hent logo-kilder
+    const brannvernImg = document.querySelector('img[alt="Brannvernforeningen"]');
+    const finansNorgeImg = document.querySelector('img[alt="Finans Norge Forsikringsdrift"]');
+    const brannvernLogoSrc = brannvernImg ? brannvernImg.src : '';
+    const finansNorgeLogoSrc = finansNorgeImg ? finansNorgeImg.src : '';
     
     let imagesHTML = '';
     if (images.length > 0) {
@@ -316,8 +319,58 @@ const HotWorkChecklist = () => {
     
     const explosiveHTML = formData.explosiveArea ? '<div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 10px; margin: 15px 0; font-size: 12px;"><strong>☑ ' + t.explosiveTitle + '</strong><br><strong>15.</strong> ' + t.items[14] + '<br><em>Kontrollør: ' + (formData.controllerName || '-') + '</em></div>' : '';
     
-    pdfContent.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;"><img src="' + brannvernLogoSrc + '" alt="Brannvernforeningen" style="height: 40px;"><img src="' + finansNorgeLogoSrc + '" alt="Finans Norge Forsikringsdrift" style="height: 40px;"></div>'
-
+    const clientSig = formData.clientSignature ? '<img src="' + formData.clientSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
+    const executorSig = formData.executorSignature ? '<img src="' + formData.executorSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
+    const watchSig = formData.watchSignature ? '<img src="' + formData.watchSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
+    
+    pdfContent.innerHTML = 
+      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">' +
+        (brannvernLogoSrc ? '<img src="' + brannvernLogoSrc + '" alt="Brannvernforeningen" style="height: 80px;">' : '<div style="background: #dc2626; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Brannvernforeningen</div>') +
+        (finansNorgeLogoSrc ? '<img src="' + finansNorgeLogoSrc + '" alt="Finans Norge" style="height: 40px;">' : '<div style="background: #1e3a8a; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Finans Norge</div>') +
+      '</div>' +
+      '<h1 style="font-size: 20px; margin-bottom: 10px;">' + t.title + '</h1>' +
+      '<p style="font-size: 12px; color: #666; margin-bottom: 20px;">' + t.subtitle + '</p>' +
+      '<div style="margin-bottom: 15px;"><strong>' + t.workType + '</strong> ' + (formData.workType || '-') + '</div>' +
+      '<div style="margin-bottom: 15px;"><strong>' + t.location + '</strong> ' + (formData.location || '-') + '</div>' +
+      '<div style="display: flex; gap: 20px; margin-bottom: 15px;">' +
+        '<div style="flex: 1;"><strong>' + t.startDateTime + '</strong><br>' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '</div>' +
+        '<div style="flex: 1;"><strong>' + t.endDateTime + '</strong><br>' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '</div>' +
+      '</div>' +
+      '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.client + '</h3>' +
+        '<p><strong>Navn:</strong> ' + (formData.clientName || '-') + '</p>' +
+        '<p><strong>' + t.phone + '</strong> ' + (formData.clientPhone || '-') + '</p>' +
+        '<p><strong>' + t.email + '</strong> ' + (formData.clientEmail || '-') + '</p>' +
+        clientSig +
+      '</div>' +
+      '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.executor + '</h3>' +
+        '<p><strong>Navn:</strong> ' + (formData.executorName || '-') + '</p>' +
+        '<p><strong>' + t.phone + '</strong> ' + (formData.executorPhone || '-') + '</p>' +
+        '<p><strong>' + t.email + '</strong> ' + (formData.executorEmail || '-') + '</p>' +
+        '<p><strong>' + t.certNr + '</strong> ' + (formData.executorCert || '-') + '</p>' +
+        executorSig +
+      '</div>' +
+      '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.fireWatch + '</h3>' +
+        '<p><strong>Navn:</strong> ' + (formData.watchName || '-') + '</p>' +
+        '<p><strong>' + t.phone + '</strong> ' + (formData.watchPhone || '-') + '</p>' +
+        '<p><strong>' + t.certNr + '</strong> ' + (formData.watchCert || '-') + '</p>' +
+        watchSig +
+      '</div>' +
+      '<div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 20px;">' +
+        '<h2 style="font-size: 16px; margin-bottom: 15px;">' + t.safetyReq + '</h2>' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px; font-weight: bold;">' + t.beforeWork + '</h3>' +
+        checklistBeforeHTML +
+        explosiveHTML +
+        '<h3 style="font-size: 14px; margin-bottom: 10px; margin-top: 20px; font-weight: bold;">' + t.afterWork + '</h3>' +
+        checklistAfterHTML +
+      '</div>' +
+      imagesHTML +
+      '<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 10px; color: #666;">' +
+        '<p>Generert: ' + new Date().toLocaleDateString('nb-NO') + ' ' + new Date().toLocaleTimeString('nb-NO') + '</p>' +
+      '</div>';
+    
     const printWindow = window.open('', '_blank');
     printWindow.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument') + '</title><style>body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }@media print {body { margin: 0; }@page { margin: 1cm; }}</style></head><body>' + pdfContent.innerHTML + '</body></html>');
     printWindow.document.close();
@@ -408,13 +461,77 @@ const HotWorkChecklist = () => {
     }, 500);
   };
 
+  const copyEmailContent = () => {
+    const clientEmail = formData.clientEmail;
+    const executorEmail = formData.executorEmail;
+    const sendToClient = formData.sendToClient;
+    const sendToExecutor = formData.sendToExecutor;
+    
+    const recipients = [];
+    if (sendToClient && clientEmail) recipients.push(clientEmail);
+    if (sendToExecutor && executorEmail) recipients.push(executorEmail);
+    
+    if (recipients.length === 0) {
+      alert('Vennligst velg minst én mottaker og fyll inn e-postadresse');
+      return;
+    }
+  
+    const checklistBefore = t.items.slice(0, 14).map((item, i) => {
+      const checked = formData.checklist[i] ? '[X]' : '[ ]';
+      return checked + ' ' + (i + 1) + '. ' + item;
+    }).join('\n');
+    
+    const checklistAfter = t.items.slice(15, 18).map((item, i) => {
+      const checked = formData.checklist[i + 15] ? '[X]' : '[ ]';
+      return checked + ' ' + (i + 16) + '. ' + item;
+    }).join('\n');
+    
+    const emailContent = 
+      'TIL: ' + recipients.join(', ') + '\n' +
+      'EMNE: Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument') + '\n\n' +
+      'SJEKKLISTE FOR VARME ARBEIDER\n' +
+      new Date().toLocaleDateString('nb-NO') + '\n\n' +
+      'ARBEIDETS ART: ' + (formData.workType || '-') + '\n' +
+      'ARBEIDSPLASS: ' + (formData.location || '-') + '\n\n' +
+      'START: ' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '\n' +
+      'SLUTT: ' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '\n\n' +
+      '--- OPPDRAGSGIVER ---\n' +
+      'Navn: ' + (formData.clientName || '-') + '\n' +
+      'Telefon: ' + (formData.clientPhone || '-') + '\n' +
+      'E-post: ' + (clientEmail || '-') + '\n\n' +
+      '--- UTFØRENDE ---\n' +
+      'Navn: ' + (formData.executorName || '-') + '\n' +
+      'Telefon: ' + (formData.executorPhone || '-') + '\n' +
+      'E-post: ' + (executorEmail || '-') + '\n' +
+      'Sertifikat: ' + (formData.executorCert || '-') + '\n\n' +
+      '--- BRANNVAKT ---\n' +
+      'Navn: ' + (formData.watchName || '-') + '\n' +
+      'Telefon: ' + (formData.watchPhone || '-') + '\n' +
+      'Sertifikat: ' + (formData.watchCert || '-') + '\n\n' +
+      '--- SIKKERHETSKRAV ---\n' +
+      'FØR ARBEIDET STARTER:\n' +
+      checklistBefore + '\n\n' +
+      (formData.explosiveArea ? '[X] EKSPLOSJONSFARLIGE ROM\nKontrollør: ' + (formData.controllerName || '-') + '\n\n' : '') +
+      'OPPFØLGING ETTER AVSLUTTET ARBEID:\n' +
+      checklistAfter + '\n\n' +
+      (images.length > 0 ? 'DOKUMENTASJONSBILDER: ' + images.length + ' stk\n\n' : '') +
+      '---\n' +
+      'Dette dokumentet er generert digitalt.';
+    
+    navigator.clipboard.writeText(emailContent).then(() => {
+      alert('✓ E-postinnhold kopiert til utklippstavle!\n\nÅpne Gmail/Outlook og lim inn (Ctrl+V)');
+    }).catch(() => {
+      alert('Kunne ikke kopiere automatisk. Kopier teksten manuelt:\n\n' + emailContent);
+    });
+  };
+
   if (!authenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-        <div className="flex justify-between items-center mb-6 gap-4">
-          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-8 sm:h-10 md:h-12 object-contain" />
-          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 sm:h-10 md:h-12 object-contain" />
+        <div className="flex justify-between items-center mb-6 gap-0">
+          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-12 sm:h-14 md:h-16 object-contain" />
+          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-6 sm:h-8 md:h-10 object-contain" />
         </div>
           <h2 className="text-2xl font-bold mb-4">{t.login}</h2>
           <div className="space-y-4">
@@ -445,7 +562,7 @@ const HotWorkChecklist = () => {
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg" id="checklist-content">
         <div className="space-y-4 mb-4">
         <div className="flex justify-between items-center">
-          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-8 md:h-10" />
+          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-12 md:h-20" />
           <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 md:h-10" />
         </div>
         <div className="flex justify-center gap-2">
@@ -824,9 +941,18 @@ const HotWorkChecklist = () => {
               className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
             >
               <Mail size={20} />
-              {t.sendEmail}
-            </button>
-          </div>
+    {t.sendEmail}
+  </button>
+  <button
+    onClick={copyEmailContent}
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700"
+    title="Kopier e-postinnhold til utklippstavle"
+  >
+    <Mail size={20} />
+    <span className="hidden sm:inline">Kopier e-post</span>
+    <span className="sm:hidden">Kopier</span>
+  </button>
+</div>
         </div>
       </div>
     </div>
