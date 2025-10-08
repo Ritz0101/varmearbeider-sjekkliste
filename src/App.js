@@ -44,7 +44,7 @@ const HotWorkChecklist = () => {
       login: 'Logg inn med sertifikatnummer',
       certLabel: 'Sertifikatnummer',
       loginBtn: 'Logg inn',
-      certError: 'Ugyldig sertifikatnummer (5-7 siffer)',
+      certError: 'Feil passord',
       workType: 'Arbeidets art:',
       location: 'Arbeidsplass/adresse:',
       startDateTime: 'Når arbeidet starter:',
@@ -63,8 +63,13 @@ const HotWorkChecklist = () => {
       afterWork: 'Oppfølging etter avsluttet arbeid:',
       explosiveTitle: 'Eksplosjonsfarlige rom og områder, ikke aktuelt',
       addPhoto: 'Legg til bilde',
+      takePhoto: 'Ta bilde',   
+      selectFromGallery: 'Velg fra galleri',
       generate: 'Generer PDF',
       sendEmail: 'Send på e-post',
+      copyEmail: 'Kopier e-post',        
+      sendToClientLabel: 'Send e-post til oppdragsgiver',  
+      sendToExecutorLabel: 'Send e-post til utførende',    
       items: [
         'Oppdragstaker har ansvarsdekning i forhold til oppdragets størrelse og risiko.',
         'Skriftlig risikovurdering av takarbeid er gjennomført og vedlagt denne sjekklisten. Ved annet arbeid enn takarbeid kan avkrysning utelates.',
@@ -92,7 +97,7 @@ const HotWorkChecklist = () => {
       login: 'Login with certificate number',
       certLabel: 'Certificate number',
       loginBtn: 'Login',
-      certError: 'Invalid certificate number (5-7 digits)',
+      certError: 'Wrong password',
       workType: 'Type of work:',
       location: 'Workplace/address:',
       startDateTime: 'When work starts:',
@@ -111,8 +116,13 @@ const HotWorkChecklist = () => {
       afterWork: 'Follow-up after completed work:',
       explosiveTitle: 'Explosive rooms and areas, not applicable',
       addPhoto: 'Add photo',
+      takePhoto: 'Take photo',              
+      selectFromGallery: 'Select from gallery',  
       generate: 'Generate PDF',
       sendEmail: 'Send by email',
+      copyEmail: 'Copy email',              
+      sendToClientLabel: 'Send email to client',  
+      sendToExecutorLabel: 'Send email to executor',  
       items: [
         'Contractor has liability coverage in relation to the size and risk of the assignment.',
         'Written risk assessment of roof work has been completed and attached to this checklist. For work other than roof work, this can be omitted.',
@@ -140,7 +150,7 @@ const HotWorkChecklist = () => {
       login: 'Zaloguj się numerem certyfikatu',
       certLabel: 'Numer certyfikatu',
       loginBtn: 'Zaloguj',
-      certError: 'Nieprawidłowy numer certyfikatu (5-7 cyfr)',
+      certError: 'Nieprawidłowe hasło',
       workType: 'Rodzaj pracy:',
       location: 'Miejsce pracy/adres:',
       startDateTime: 'Kiedy praca się rozpoczyna:',
@@ -159,8 +169,13 @@ const HotWorkChecklist = () => {
       afterWork: 'Działania następcze po zakończeniu pracy:',
       explosiveTitle: 'Pomieszczenia i obszary wybuchowe, nie dotyczy',
       addPhoto: 'Dodaj zdjęcie',
+      takePhoto: 'Zrób zdjęcie',            
+      selectFromGallery: 'Wybierz z galerii', 
       generate: 'Generuj PDF',
       sendEmail: 'Wyślij e-mailem',
+      copyEmail: 'Kopiuj e-mail',           
+      sendToClientLabel: 'Wyślij e-mail do klienta',  
+      sendToExecutorLabel: 'Wyślij e-mail do wykonawcy', 
       items: [
         'Wykonawca posiada ubezpieczenie odpowiedzialności cywilnej odpowiednie do wielkości i ryzyka zlecenia.',
         'Pisemna ocena ryzyka prac na dachu została przeprowadzona i dołączona do tej listy kontrolnej. W przypadku prac innych niż dachowe można to pominąć.',
@@ -195,7 +210,7 @@ const HotWorkChecklist = () => {
     const num = certNumber.trim();
     if (num.length >= 5 && num.length <= 7 && /^\d+$/.test(num)) {
       setAuthenticated(true);
-      setFormData(prev => ({ ...prev, watchCert: num }));
+      
     } else {
       alert(t.certError);
     }
@@ -529,10 +544,32 @@ const HotWorkChecklist = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-        <div className="flex justify-between items-center mb-6 gap-0">
-          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-12 sm:h-14 md:h-16 object-contain" />
-          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-6 sm:h-8 md:h-10 object-contain" />
-        </div>
+          <div className="space-y-4 mb-6">
+            <div className="flex justify-between items-center gap-4">
+              <img src={brannvernLogo} alt="Brannvernforeningen" className="h-8 sm:h-10 md:h-12 object-contain" />
+              <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 sm:h-10 md:h-12 object-contain" />
+            </div>
+            <div className="flex justify-center gap-2">
+              <button 
+                onClick={() => setLanguage('no')} 
+                className={'px-4 py-2 rounded font-medium ' + (language === 'no' ? 'bg-red-600 text-white' : 'bg-gray-200')}
+              >
+                NO
+              </button>
+              <button 
+                onClick={() => setLanguage('en')} 
+                className={'px-4 py-2 rounded font-medium ' + (language === 'en' ? 'bg-red-600 text-white' : 'bg-gray-200')}
+              >
+                EN
+              </button>
+              <button 
+                onClick={() => setLanguage('pl')} 
+                className={'px-4 py-2 rounded font-medium ' + (language === 'pl' ? 'bg-red-600 text-white' : 'bg-gray-200')}
+              >
+                PL
+              </button>
+            </div>
+          </div>
           <h2 className="text-2xl font-bold mb-4">{t.login}</h2>
           <div className="space-y-4">
             <div>
@@ -658,16 +695,16 @@ const HotWorkChecklist = () => {
               />
             </div>
             {formData.clientEmail && (
-    <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
-      <input
-        type="checkbox"
-        checked={formData.sendToClient}
-        onChange={(e) => setFormData(prev => ({ ...prev, sendToClient: e.target.checked }))}
-        className="w-4 h-4"
-      />
-      <span className="text-sm font-medium">Send e-post til oppdragsgiver ({formData.clientEmail})</span>
-    </label>
-  )}
+  <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
+    <input
+      type="checkbox"
+      checked={formData.sendToClient}
+      onChange={(e) => setFormData(prev => ({ ...prev, sendToClient: e.target.checked }))}
+      className="w-4 h-4"
+    />
+    <span className="text-sm font-medium">{t.sendToClientLabel} ({formData.clientEmail})</span>
+  </label>
+)}
             <div>
               <label className="block font-medium mb-2">{t.signature}</label>
               <div className="relative">
@@ -721,16 +758,16 @@ const HotWorkChecklist = () => {
               />
             </div>
             {formData.executorEmail && (
-    <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
-      <input
-        type="checkbox"
-        checked={formData.sendToExecutor}
-        onChange={(e) => setFormData(prev => ({ ...prev, sendToExecutor: e.target.checked }))}
-        className="w-4 h-4"
-      />
-      <span className="text-sm font-medium">Send e-post til utførende ({formData.executorEmail})</span>
-    </label>
-  )}
+  <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
+    <input
+      type="checkbox"
+      checked={formData.sendToExecutor}
+      onChange={(e) => setFormData(prev => ({ ...prev, sendToExecutor: e.target.checked }))}
+      className="w-4 h-4"
+    />
+    <span className="text-sm font-medium">{t.sendToExecutorLabel} ({formData.executorEmail})</span>
+  </label>
+)}
             <div>
               <label className="block font-medium mb-2">{t.signature}</label>
               <div className="relative">
@@ -752,30 +789,30 @@ const HotWorkChecklist = () => {
           </div>
 
           <div className="border-t pt-6">
-            <h3 className="font-bold mb-4">{t.fireWatch}</h3>
-            <div className="grid md:grid-cols-4 gap-4 mb-4">
-              <input
-                type="text"
-                placeholder={t.fireWatch}
-                value={formData.watchName}
-                onChange={(e) => setFormData(prev => ({ ...prev, watchName: e.target.value }))}
-                className="px-3 py-2 border rounded"
-              />
-              <input
-                type="tel"
-                placeholder={t.phone}
-                value={formData.watchPhone}
-                onChange={(e) => setFormData(prev => ({ ...prev, watchPhone: e.target.value }))}
-                className="px-3 py-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder={t.certNr}
-                value={formData.watchCert}
-                readOnly
-                className="px-3 py-2 border rounded bg-gray-100"
-              />
-            </div>
+  <h3 className="font-bold mb-4">{t.fireWatch}</h3>
+  <div className="grid md:grid-cols-3 gap-4 mb-4">
+    <input
+      type="text"
+      placeholder={t.fireWatch}
+      value={formData.watchName}
+      onChange={(e) => setFormData(prev => ({ ...prev, watchName: e.target.value }))}
+      className="px-3 py-2 border rounded"
+    />
+    <input
+      type="tel"
+      placeholder={t.phone}
+      value={formData.watchPhone}
+      onChange={(e) => setFormData(prev => ({ ...prev, watchPhone: e.target.value }))}
+      className="px-3 py-2 border rounded"
+    />
+    <input
+      type="text"
+      placeholder={t.certNr}
+      value={formData.watchCert}
+      onChange={(e) => setFormData(prev => ({ ...prev, watchCert: e.target.value }))}
+      className="px-3 py-2 border rounded"
+    />
+  </div>
             <div>
               <label className="block font-medium mb-2">{t.signature}</label>
               <div className="relative">
@@ -888,29 +925,29 @@ const HotWorkChecklist = () => {
           <div className="border-t pt-6">
             <h3 className="font-bold mb-4">{t.addPhoto}</h3>
             <div className="mb-4 flex gap-2">
-              <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
-                <Camera size={20} />
-                <span>Ta bilde</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-              <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700">
-                <Download size={20} />
-                <span>Velg fra galleri</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </label>
-            </div>
+  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
+    <Camera size={20} />
+    <span>{t.takePhoto}</span>
+    <input
+      type="file"
+      accept="image/*"
+      capture="environment"
+      onChange={handleImageUpload}
+      className="hidden"
+    />
+  </label>
+  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700">
+    <Download size={20} />
+    <span>{t.selectFromGallery}</span>
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      onChange={handleImageUpload}
+      className="hidden"
+    />
+  </label>
+</div>
             {images.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {images.map((img, index) => (
@@ -929,27 +966,27 @@ const HotWorkChecklist = () => {
           </div>
 
           <div className="border-t pt-6 flex flex-col sm:flex-row gap-4">
-            <button
-              onClick={generatePDF}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
-            >
-              <Download size={20} />
-              {t.generate}
-            </button>
-            <button
-              onClick={sendEmail}
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-            >
-              <Mail size={20} />
+  <button
+    onClick={generatePDF}
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+  >
+    <Download size={20} />
+    {t.generate}
+  </button>
+  <button
+    onClick={sendEmail}
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+  >
+    <Mail size={20} />
     {t.sendEmail}
   </button>
   <button
     onClick={copyEmailContent}
     className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700"
-    title="Kopier e-postinnhold til utklippstavle"
+    title={t.copyEmail}
   >
     <Mail size={20} />
-    <span className="hidden sm:inline">Kopier e-post</span>
+    <span className="hidden sm:inline">{t.copyEmail}</span>
     <span className="sm:hidden">Kopier</span>
   </button>
 </div>
