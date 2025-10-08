@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Download, Mail, X } from 'lucide-react';
+import brannvernLogo from './brannvern-logo.png';
+import finansNorgeLogo from './finans-norge-logo.png';
 
 const HotWorkChecklist = () => {
   const [language, setLanguage] = useState('no');
@@ -391,8 +393,8 @@ const HotWorkChecklist = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
           <div className="flex justify-between items-center mb-6 gap-4">
-           <img src="/brannvern-logo.png" alt="Brannvernforeningen" className="h-12" />
-            <img src="/finans-norge-logo.png" alt="Finans Norge Forsikringsdrift" className="h-12" />
+          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-12" />
+          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-12" />
           </div>
           <h2 className="text-2xl font-bold mb-4">{t.login}</h2>
           <div className="space-y-4">
@@ -423,13 +425,13 @@ const HotWorkChecklist = () => {
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg" id="checklist-content">
         <div className="p-6 border-b">
           <div className="flex justify-between items-center mb-4">
-             <img src="/brannvern-logo.png" alt="Brannvernforeningen" className="h-10" />
+          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-20" />
              <div className="flex gap-2">
               <button onClick={() => setLanguage('no')} className={'px-3 py-1 rounded ' + (language === 'no' ? 'bg-red-600 text-white' : 'bg-gray-200')}>NO</button>
               <button onClick={() => setLanguage('en')} className={'px-3 py-1 rounded ' + (language === 'en' ? 'bg-red-600 text-white' : 'bg-gray-200')}>EN</button>
               <button onClick={() => setLanguage('pl')} className={'px-3 py-1 rounded ' + (language === 'pl' ? 'bg-red-600 text-white' : 'bg-gray-200')}>PL</button>
             </div>
-             <img src="/finans-norge-logo.png" alt="Finans Norge Forsikringsdrift" className="h-10" />
+            <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-12" />
           </div>
           <h1 className="text-2xl font-bold mb-2">{t.title}</h1>
           <p className="text-sm text-gray-600">{t.subtitle}</p>
