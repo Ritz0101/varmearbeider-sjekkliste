@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/varmearbeider-sjekkliste/static/css/main.e6c13ad2.css",
+    "main.js": "/varmearbeider-sjekkliste/static/js/main.4ffb8bb5.js",
+    "static/js/453.f39ce959.chunk.js": "/varmearbeider-sjekkliste/static/js/453.f39ce959.chunk.js",
+    "index.html": "/varmearbeider-sjekkliste/index.html",
+    "main.e6c13ad2.css.map": "/varmearbeider-sjekkliste/static/css/main.e6c13ad2.css.map",
+    "main.4ffb8bb5.js.map": "/varmearbeider-sjekkliste/static/js/main.4ffb8bb5.js.map",
+    "453.f39ce959.chunk.js.map": "/varmearbeider-sjekkliste/static/js/453.f39ce959.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.4ffb8bb5.js"
+  ]
+}
