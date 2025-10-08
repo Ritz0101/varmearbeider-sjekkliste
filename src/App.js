@@ -392,10 +392,10 @@ const HotWorkChecklist = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-          <div className="flex justify-between items-center mb-6 gap-4">
-          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-12" />
-          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-12" />
-          </div>
+        <div className="flex justify-between items-center mb-6 gap-4">
+          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-8 sm:h-10 md:h-12 object-contain" />
+          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 sm:h-10 md:h-12 object-contain" />
+        </div>
           <h2 className="text-2xl font-bold mb-4">{t.login}</h2>
           <div className="space-y-4">
             <div>
@@ -423,19 +423,17 @@ const HotWorkChecklist = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg" id="checklist-content">
-        <div className="p-6 border-b">
-          <div className="flex justify-between items-center mb-4">
-          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-20" />
-             <div className="flex gap-2">
-              <button onClick={() => setLanguage('no')} className={'px-3 py-1 rounded ' + (language === 'no' ? 'bg-red-600 text-white' : 'bg-gray-200')}>NO</button>
-              <button onClick={() => setLanguage('en')} className={'px-3 py-1 rounded ' + (language === 'en' ? 'bg-red-600 text-white' : 'bg-gray-200')}>EN</button>
-              <button onClick={() => setLanguage('pl')} className={'px-3 py-1 rounded ' + (language === 'pl' ? 'bg-red-600 text-white' : 'bg-gray-200')}>PL</button>
-            </div>
-            <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-12" />
-          </div>
-          <h1 className="text-2xl font-bold mb-2">{t.title}</h1>
-          <p className="text-sm text-gray-600">{t.subtitle}</p>
+        <div className="space-y-4 mb-4">
+        <div className="flex justify-between items-center">
+          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-8 md:h-10" />
+          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 md:h-10" />
         </div>
+        <div className="flex justify-center gap-2">
+          <button onClick={() => setLanguage('no')} className={'px-4 py-2 rounded font-medium ' + (language === 'no' ? 'bg-red-600 text-white' : 'bg-gray-200')}>NO</button>
+          <button onClick={() => setLanguage('en')} className={'px-4 py-2 rounded font-medium ' + (language === 'en' ? 'bg-red-600 text-white' : 'bg-gray-200')}>EN</button>
+          <button onClick={() => setLanguage('pl')} className={'px-4 py-2 rounded font-medium ' + (language === 'pl' ? 'bg-red-600 text-white' : 'bg-gray-200')}>PL</button>
+        </div>
+    </div>
 
         <div className="p-6 space-y-6">
           <div className="grid gap-4">
