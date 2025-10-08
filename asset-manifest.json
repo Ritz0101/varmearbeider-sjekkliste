@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/varmearbeider-sjekkliste/static/css/main.e6c13ad2.css",
-    "main.js": "/varmearbeider-sjekkliste/static/js/main.b6d10428.js",
+    "main.js": "/varmearbeider-sjekkliste/static/js/main.c7cf241e.js",
     "static/js/453.f39ce959.chunk.js": "/varmearbeider-sjekkliste/static/js/453.f39ce959.chunk.js",
     "static/media/finans-norge-logo.png": "/varmearbeider-sjekkliste/static/media/finans-norge-logo.6440fa8d2671f0435dad.png",
     "static/media/brannvern-logo.png": "/varmearbeider-sjekkliste/static/media/brannvern-logo.f6edeba844ebc0739ee2.png",
     "index.html": "/varmearbeider-sjekkliste/index.html",
     "main.e6c13ad2.css.map": "/varmearbeider-sjekkliste/static/css/main.e6c13ad2.css.map",
-    "main.b6d10428.js.map": "/varmearbeider-sjekkliste/static/js/main.b6d10428.js.map",
+    "main.c7cf241e.js.map": "/varmearbeider-sjekkliste/static/js/main.c7cf241e.js.map",
     "453.f39ce959.chunk.js.map": "/varmearbeider-sjekkliste/static/js/453.f39ce959.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.b6d10428.js"
+    "static/js/main.c7cf241e.js"
   ]
 }
