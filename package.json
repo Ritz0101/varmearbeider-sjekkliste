@@ -1,7 +1,7 @@
 {
   "name": "varmearbeider-sjekkliste",
   "version": "0.1.0",
-  "homepage": "https://Ritz0101.github.io/varmearbeider-sjekkliste",
+  "homepage": "https://skjema.frostbytes.no",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
