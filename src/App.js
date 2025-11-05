@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Download, Mail, X } from 'lucide-react';
-import brannvernLogo from './brannvern-logo.png';
-import finansNorgeLogo from './finans-norge-logo.png';
 
 const HotWorkChecklist = () => {
+  const DRAFT_KEY = 'va_checklist_draft_v1';
   const [language, setLanguage] = useState('no');
   const [authenticated, setAuthenticated] = useState(false);
   const [certNumber, setCertNumber] = useState('');
   const [images, setImages] = useState([]);
-  const [formData, setFormData] = useState({
+  const [timeEnded, setTimeEnded] = useState(false);
+  const initialFormData = {
     workType: '',
     location: '',
     startDate: '',
@@ -35,7 +35,8 @@ const HotWorkChecklist = () => {
     controllerName: '',
     checklist: Array(18).fill(false),
     explosiveArea: false
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
 
   const translations = {
     no: {
@@ -92,29 +93,29 @@ const HotWorkChecklist = () => {
       ]
     },
     en: {
-      title: 'Checklist for Hot Work Operations',
-      subtitle: 'This must always be completed and signed together before work begins.',
+      title: 'Checklist for the execution of hot work, 1 January 2024',
+      subtitle: 'This must always be filled in and signed jointly before work is carried out.',
       login: 'Login with certificate number',
       certLabel: 'Certificate number',
       loginBtn: 'Login',
       certError: 'Wrong password',
-      workType: 'Type of work:',
-      location: 'Workplace/address:',
-      startDateTime: 'When work starts:',
-      endDateTime: 'When work ends:',
+      workType: 'Nature of the work:',
+      location: 'Worksite/address (describe where the work is to be carried out):',
+      startDateTime: 'Date and time when work is to begin:',
+      endDateTime: 'Date and time when work is to end:',
       date: 'Date',
       time: 'Time',
-      client: 'Client person/company:',
+      client: 'Client, individual/company:',
       phone: 'Mobile number:',
       email: 'Email address:',
-      signature: 'Signature:',
-      executor: 'Executing person(s)/company:',
+      signature: 'Sign.:',
+      executor: 'Person(s)/company doing the work:',
       certNr: 'Certificate no.:',
-      fireWatch: 'Fire watch(es):',
+      fireWatch: 'Fire watcher(s):',
       safetyReq: 'SAFETY REQUIREMENTS',
-      beforeWork: 'Before work starts:',
-      afterWork: 'Follow-up after completed work:',
-      explosiveTitle: 'Explosive rooms and areas, not applicable',
+      beforeWork: 'Before the work begins:',
+      afterWork: 'Follow-up after work is completed:',
+      explosiveTitle: 'Potentially explosive spaces and zones, not applicable',
       addPhoto: 'Add photo',
       takePhoto: 'Take photo',              
       selectFromGallery: 'Select from gallery',  
@@ -124,50 +125,50 @@ const HotWorkChecklist = () => {
       sendToClientLabel: 'Send email to client',  
       sendToExecutorLabel: 'Send email to executor',  
       items: [
-        'Contractor has liability coverage in relation to the size and risk of the assignment.',
-        'Written risk assessment of roof work has been completed and attached to this checklist. For work other than roof work, this can be omitted.',
-        'Risk of combustible insulation in structures has been assessed.',
+        'The contractor has liability cover insurance appropriate to the scope of the work and the risk involved.',
+        'A written risk assessment of roof work has been completed and enclosed with this checklist. This check box may be omitted for any work other than roof work.',
+        'The risk posed by combustible insulation in structures has been assessed.',
         'Openings in floors, walls and ceilings/roofs are sealed.',
-        'Hidden spaces have been checked (wooden beam layers, ventilation and exhaust ducts, downpipes and pipes, etc.).',
+        'Concealed spaces have been checked (wooden joists, ventilation and extraction ducts, suspended ceilling cavities, pipes, etc.).',
         'Combustible materials/liquids have been removed.',
-        'Combustible material that cannot be moved and combustible building parts are protected or moistened.',
-        'Suitable and sufficient extinguishing equipment in regulatory condition, minimum 2 pcs. 6 kg/liter hand extinguisher must be easily accessible.',
-        'Fire alarm detectors or loops are disconnected. Disconnected by:',
-        'Named fire watch(es) are present during work, during breaks and necessary time after work is completed, minimum one hour after work is completed.',
-        'Work equipment has been checked and is in order.',
-        'The need for increased preparedness to handle fire incidents has been assessed.',
-        'There are at least two escape routes from the risk area.',
-        'Emergency numbers and procedures for reporting fires and accidents are known. The workplace address is known.',
-        'Written work permit is signed by controller. Controller name:',
-        'Post-inspection so that there is no danger of fire.',
-        'Fire alarm detectors or loops are reconnected by:',
-        'Gas cylinders are placed near the outer door/gate for easy removal to safety in case of fire.'
+        'Combustible materials that cannot be relocated and combustible structural elements have been protected or wetted.',
+        'A sufficient quantity of suitable extinguishing equipment (at least two 6 kg/litre handheld fire extinguishers) in regulation-compliant condition must be readily accessible. One handheld fire extinguisher may be replaced with a fire hose with a water supply reaching directly to the jet spray nozzle. A separate suitability and quantity assessment is enclosed with this checklist.',
+        'Fire alarm detectors or loops have been disconnected. Disconnected by:',
+        'The named fire watcher(s) is/are in attendance while the work is being carried out, during breaks and for the necessary time (at least one hour) after the work has been completed.',
+        'The work equipment has been checked and found to be in working order.',
+        'The need for an increased state of readiness to be able to cope with the onset of fire has been assessed.',
+        'There are at least two escape routes from the risk zone.',
+        'People are aware of emergency numbers and procedures for alerting others to fires and accidents. People are aware of the address of the worksite.',
+        'The written work permit is signed by the inspector. Name of inspector:',
+        'Follow-up inspection to ensure there is no risk of fire.',
+        'Fire alarm detectors or loop reconnected by:',
+        'Gas cylinders are located near to an outer door/gate allowing their easy removal to a safe place in the event of a fire.'
       ]
     },
     pl: {
-      title: 'Lista kontrolna dla prac na gorąco',
-      subtitle: 'Musi być zawsze wypełniona i podpisana wspólnie przed rozpoczęciem pracy.',
+      title: 'Lista kontrolna do wykonywania prac pożarowo niebezpiecznych 1.01.2024',
+      subtitle: 'Musi zawsze zostać wypełniona i wspólnie podpisana przed wykonaniem pracy.',
       login: 'Zaloguj się numerem certyfikatu',
       certLabel: 'Numer certyfikatu',
       loginBtn: 'Zaloguj',
       certError: 'Nieprawidłowe hasło',
-      workType: 'Rodzaj pracy:',
-      location: 'Miejsce pracy/adres:',
-      startDateTime: 'Kiedy praca się rozpoczyna:',
-      endDateTime: 'Kiedy praca się kończy:',
+      workType: 'Charakter pracy:',
+      location: 'Miejsce pracy/adres (opisać, gdzie praca ma być wykonywana):',
+      startDateTime: 'Data i godzina rozpoczęcia pracy:',
+      endDateTime: 'Data i godzina zakończenia pracy:',
       date: 'Data',
       time: 'Godzina',
-      client: 'Klient osoba/firma:',
-      phone: 'Numer telefonu:',
+      client: 'Osoba/firma zlecająca:',
+      phone: 'Numer telefonu komórkowego:',
       email: 'Adres e-mail:',
       signature: 'Podpis:',
-      executor: 'Wykonawca osoba/firma:',
+      executor: 'Osoba (osoby)/firma wykonująca:',
       certNr: 'Nr certyfikatu:',
-      fireWatch: 'Straż pożarowa:',
-      safetyReq: 'WYMAGANIA BEZPIECZEŃSTWA',
+      fireWatch: 'Obserwator (obserwatorzy) przeciwpożarowy:',
+      safetyReq: 'WYMAGANIA DOTYCZĄCE BEZPIECZEŃSTWA',
       beforeWork: 'Przed rozpoczęciem pracy:',
-      afterWork: 'Działania następcze po zakończeniu pracy:',
-      explosiveTitle: 'Pomieszczenia i obszary wybuchowe, nie dotyczy',
+      afterWork: 'Działania po zakończeniu pracy:',
+      explosiveTitle: 'Pomieszczenia i obszary zagrożone wybuchem, nie dotyczy',
       addPhoto: 'Dodaj zdjęcie',
       takePhoto: 'Zrób zdjęcie',            
       selectFromGallery: 'Wybierz z galerii', 
@@ -177,40 +178,76 @@ const HotWorkChecklist = () => {
       sendToClientLabel: 'Wyślij e-mail do klienta',  
       sendToExecutorLabel: 'Wyślij e-mail do wykonawcy', 
       items: [
-        'Wykonawca posiada ubezpieczenie odpowiedzialności cywilnej odpowiednie do wielkości i ryzyka zlecenia.',
-        'Pisemna ocena ryzyka prac na dachu została przeprowadzona i dołączona do tej listy kontrolnej. W przypadku prac innych niż dachowe można to pominąć.',
-        'Oceniono ryzyko związane z palną izolacją w konstrukcjach.',
+        'Zleceniobiorca posiada ubezpieczenie od odpowiedzialności cywilnej stosownie do wielkości zlecenia i wiążącego się z nim ryzyka.',
+        'Do tej listy kontrolnej załączono pisemną ocenę ryzyka prac dekarskich. W przypadku prac innych niż dekarskie można nie zaznaczać tej pozycji.',
+        'Oceniono ryzyko występowania palnej izolacji w konstrukcjach.',
         'Otwory w podłogach, ścianach i sufitach/dachach są uszczelnione.',
-        'Sprawdzono ukryte przestrzenie (warstwy belek drewnianych, kanały wentylacyjne i wywiewne, rury spustowe i rury itp.).',
-        'Usunięto materiały/ciecze palne.',
-        'Materiały palne, których nie można przenieść oraz palne elementy budowlane są chronione lub zwilżone.',
-        'Odpowiedni i wystarczający sprzęt gaśniczy w stanie zgodnym z przepisami, minimum 2 szt. 6 kg/litr gaśnica ręczna musi być łatwo dostępna.',
-        'Detektory alarmu pożarowego lub pętle są odłączone. Odłączone przez:',
-        'Wyznaczona straż pożarowa jest obecna podczas pracy, podczas przerw i przez niezbędny czas po zakończeniu pracy, minimum jedną godzinę po zakończeniu pracy.',
-        'Sprzęt roboczy został sprawdzony i jest sprawny.',
-        'Oceniono potrzebę zwiększonej gotowości do radzenia sobie z incydentami pożarowymi.',
-        'Z obszaru zagrożenia są co najmniej dwie drogi ewakuacyjne.',
-        'Numery alarmowe i procedury zgłaszania pożarów i wypadków są znane. Adres miejsca pracy jest znany.',
-        'Pisemne zezwolenie na pracę jest podpisane przez kontrolera. Nazwisko kontrolera:',
-        'Kontrola po zakończeniu, aby nie było zagrożenia pożarem.',
-        'Detektory alarmu pożarowego lub pętle są ponownie włączane przez:',
-        'Butle gazowe umieszcza się blisko drzwi zewnętrznych/bramy, aby można je było łatwo przenieść w bezpieczne miejsce w przypadku pożaru.'
+        'Skontrolowano ukryte przestrzenie (stropy drewniane, kanały wentylacyjne i wywiewne, sufity podwieszane, rury itp.).',
+        'Łatwopalne materiały/płyny zostały usunięte.',
+        'Materiały palne, których nie można przenieść, a także łatwopalne części budynku, są zabezpieczone lub nawilżone.',
+        'Zapewniono odpowiedni i wystarczający sprzęt gaśniczy w zgodnym z przepisami stanie, muszą być łatwo dostępne co najmniej 2 gaśnice ręczne o pojemności 6 kg lub litrów. Jedną gaśnicę ręczną można zastąpić wężem pożarniczym z wodą doprowadzoną aż do prądownicy. Ocena przydatności i ilości we własnej dokumentacji jest załączona do tej listy kontrolnej.',
+        'Czujki lub pętle alarmu przeciwpożarowego są odłączone. Odłączył:',
+        'Znani z nazwiska obserwatorzy przeciwpożarowi są obecni podczas pracy, podczas przerw i przez niezbędny czas (co najmniej godzinę) po zakończeniu pracy.',
+        'Sprzęt roboczy jest sprawdzony i sprawny.',
+        'Oceniono potrzebę zwiększenia gotowości, aby móc poradzić sobie z powstającym pożarem.',
+        'Istnieją co najmniej dwie drogi ewakuacyjne z obszaru zagrożenia.',
+        'Znane są numery alarmowe oraz procedury powiadamiania o pożarach i wypadkach. Adres miejsca pracy jest znany.',
+        'Pisemne pozwolenie na wykonanie prac podpisuje kontroler. Imię i nazwisko kontrolera:',
+        'Kontrola powykonawcza zapewniająca, że nie może wystąpić ryzyko pożaru.',
+        'Czujki lub pętlę sygnalizacji pożarowej podłącza ponownie:',
+        'Butle z gazem umieszcza się w pobliżu drzwi zewnętrznych/bramy, aby można je było łatwo przenieść w bezpieczne miejsce w przypadku pożaru.'
       ]
     }
   };
 
   const t = translations[language];
+  const vaLogo = process.env.PUBLIC_URL + '/va-full.png';
+  const formatDateYYYYMMDD = (date) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  };
+  const formatTimeHHMM = (date) => {
+    const pad = (n) => String(n).padStart(2, '0');
+    return pad(date.getHours()) + ':' + pad(date.getMinutes());
+  };
+  const saveTimeoutRef = useRef(null);
   const signatureRefs = {
     client: useRef(null),
     executor: useRef(null),
     watch: useRef(null)
   };
 
+  const resetToLogin = () => {
+    const confirmLeave = window.confirm('Hvis du går tilbake til innlogging vil pågående skjema bli slettet. Vil du fortsette?');
+    if (!confirmLeave) return;
+    setAuthenticated(false);
+    setCertNumber('');
+    setImages([]);
+    setTimeEnded(false);
+    setFormData(initialFormData);
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+    Object.values(signatureRefs).forEach(ref => {
+      if (ref.current) {
+        const ctx = ref.current.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, ref.current.width, ref.current.height);
+      }
+    });
+    window.scrollTo(0, 0);
+  };
+
   const handleLogin = () => {
     const num = certNumber.trim();
     if (num.length >= 5 && num.length <= 7 && /^\d+$/.test(num)) {
+      const now = new Date();
+      const todayStr = formatDateYYYYMMDD(now);
+      const timeStr = formatTimeHHMM(now);
+      setFormData(prev => ({
+        ...prev,
+        executorCert: num,
+        startDate: todayStr || prev.startDate,
+        startTime: timeStr || prev.startTime,
+      }));
       setAuthenticated(true);
-      
     } else {
       alert(t.certError);
     }
@@ -299,25 +336,78 @@ const HotWorkChecklist = () => {
     }
   }, [authenticated]);
 
+  // Load draft once on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.language) setLanguage(draft.language);
+        if (typeof draft.authenticated === 'boolean') setAuthenticated(draft.authenticated);
+        if (typeof draft.timeEnded === 'boolean') setTimeEnded(draft.timeEnded);
+        if (typeof draft.certNumber === 'string') setCertNumber(draft.certNumber);
+        if (Array.isArray(draft.images)) setImages(draft.images);
+        if (draft.formData && typeof draft.formData === 'object') {
+          setFormData(prev => ({ ...prev, ...draft.formData }));
+        }
+      }
+    } catch (e) {
+      // ignore corrupt drafts
+    }
+  }, []);
+
+  // Debounced auto-save when state changes
+  useEffect(() => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        const payload = {
+          language,
+          authenticated,
+          certNumber,
+          images,
+          timeEnded,
+          formData
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+      } catch (e) {
+        // storage might be full/blocked; ignore
+      }
+    }, 500);
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, [language, authenticated, certNumber, images, timeEnded, formData]);
+
   const generatePDF = () => {
+    // Ensure end time is set at completion
+    let endDateToUse = formData.endDate;
+    let endTimeToUse = formData.endTime;
+    if (!endDateToUse || !endTimeToUse) {
+      const now = new Date();
+      endDateToUse = formatDateYYYYMMDD(now);
+      endTimeToUse = formatTimeHHMM(now);
+      setFormData(prev => ({ ...prev, endDate: endDateToUse, endTime: endTimeToUse }));
+      setTimeEnded(true);
+    }
     const pdfContent = document.createElement('div');
     pdfContent.style.padding = '20px';
     pdfContent.style.fontFamily = 'Arial, sans-serif';
     pdfContent.style.maxWidth = '800px';
     
-    // Hent logo-kilder
-    const brannvernImg = document.querySelector('img[alt="Brannvernforeningen"]');
-    const finansNorgeImg = document.querySelector('img[alt="Finans Norge Forsikringsdrift"]');
-    const brannvernLogoSrc = brannvernImg ? brannvernImg.src : '';
-    const finansNorgeLogoSrc = finansNorgeImg ? finansNorgeImg.src : '';
+    // Hent logo-kilde (Varme Arbeider)
+    const vaImg = document.querySelector('img[alt="Varme Arbeider"]');
+    const vaLogoSrc = vaImg ? vaImg.src : '';
     
     let imagesHTML = '';
     if (images.length > 0) {
       const imageElements = images.map((img, index) => {
-        return '<img src="' + img + '" style="width: 100%; height: 150px; object-fit: cover; border: 1px solid #ddd;" alt="Bilde ' + (index + 1) + '">';
+        return '<img src="' + img + '" style="width: 100%; height: 300px; object-fit: contain; border: 1px solid #ddd; display: block;" alt="Bilde ' + (index + 1) + '">';
       }).join('');
       
-      imagesHTML = '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">' + imageElements + '</div></div>';
+      imagesHTML = '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
     }
     
     const checklistBeforeHTML = t.items.slice(0, 14).map((item, index) => {
@@ -339,9 +429,8 @@ const HotWorkChecklist = () => {
     const watchSig = formData.watchSignature ? '<img src="' + formData.watchSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
     
     pdfContent.innerHTML = 
-      '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">' +
-        (brannvernLogoSrc ? '<img src="' + brannvernLogoSrc + '" alt="Brannvernforeningen" style="height: 80px;">' : '<div style="background: #dc2626; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Brannvernforeningen</div>') +
-        (finansNorgeLogoSrc ? '<img src="' + finansNorgeLogoSrc + '" alt="Finans Norge" style="height: 40px;">' : '<div style="background: #1e3a8a; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Finans Norge</div>') +
+      '<div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">' +
+        (vaLogoSrc ? '<img src="' + vaLogoSrc + '" alt="Varme Arbeider" style="height: 80px;">' : '<div style="background: #00263A; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Varme Arbeider</div>') +
       '</div>' +
       '<h1 style="font-size: 20px; margin-bottom: 10px;">' + t.title + '</h1>' +
       '<p style="font-size: 12px; color: #666; margin-bottom: 20px;">' + t.subtitle + '</p>' +
@@ -349,7 +438,7 @@ const HotWorkChecklist = () => {
       '<div style="margin-bottom: 15px;"><strong>' + t.location + '</strong> ' + (formData.location || '-') + '</div>' +
       '<div style="display: flex; gap: 20px; margin-bottom: 15px;">' +
         '<div style="flex: 1;"><strong>' + t.startDateTime + '</strong><br>' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '</div>' +
-        '<div style="flex: 1;"><strong>' + t.endDateTime + '</strong><br>' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '</div>' +
+        '<div style="flex: 1;"><strong>' + t.endDateTime + '</strong><br>' + (endDateToUse || '-') + ' ' + (endTimeToUse || '-') + '</div>' +
       '</div>' +
       '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
         '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.client + '</h3>' +
@@ -396,6 +485,14 @@ const HotWorkChecklist = () => {
   };
 
   const sendEmail = () => {
+    // Ensure end time is set at completion
+    if (!formData.endDate || !formData.endTime) {
+      const now = new Date();
+      const endDateToUse = formatDateYYYYMMDD(now);
+      const endTimeToUse = formatTimeHHMM(now);
+      setFormData(prev => ({ ...prev, endDate: endDateToUse, endTime: endTimeToUse }));
+      setTimeEnded(true);
+    }
     const clientEmail = formData.clientEmail;
     const executorEmail = formData.executorEmail;
     const sendToClient = formData.sendToClient;
@@ -477,6 +574,14 @@ const HotWorkChecklist = () => {
   };
 
   const copyEmailContent = () => {
+    // Ensure end time is set at completion for copied content
+    if (!formData.endDate || !formData.endTime) {
+      const now = new Date();
+      const endDateToUse = formatDateYYYYMMDD(now);
+      const endTimeToUse = formatTimeHHMM(now);
+      setFormData(prev => ({ ...prev, endDate: endDateToUse, endTime: endTimeToUse }));
+      setTimeEnded(true);
+    }
     const clientEmail = formData.clientEmail;
     const executorEmail = formData.executorEmail;
     const sendToClient = formData.sendToClient;
@@ -542,51 +647,50 @@ const HotWorkChecklist = () => {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
+      <div className="min-h-screen bg-gradient-to-br from-accent/10 via-accent/10 to-sand/10 flex items-center justify-center p-4">
+        <div className="bg-accent/10 rounded-lg shadow-lg border-2 border-primary/20 p-8 max-w-md w-full">
           <div className="space-y-4 mb-6">
-            <div className="flex justify-between items-center gap-4">
-              <img src={brannvernLogo} alt="Brannvernforeningen" className="h-8 sm:h-10 md:h-12 object-contain" />
-              <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 sm:h-10 md:h-12 object-contain" />
+            <div className="flex justify-center items-center">
+           <img src={vaLogo} alt="Varme Arbeider" className="h-64 sm:h-72 md:h-80 object-contain" />
             </div>
             <div className="flex justify-center gap-2">
               <button 
                 onClick={() => setLanguage('no')} 
-                className={'px-4 py-2 rounded font-medium ' + (language === 'no' ? 'bg-red-600 text-white' : 'bg-gray-200')}
+                className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'no' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}
               >
                 NO
               </button>
               <button 
                 onClick={() => setLanguage('en')} 
-                className={'px-4 py-2 rounded font-medium ' + (language === 'en' ? 'bg-red-600 text-white' : 'bg-gray-200')}
+                className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'en' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}
               >
                 EN
               </button>
               <button 
                 onClick={() => setLanguage('pl')} 
-                className={'px-4 py-2 rounded font-medium ' + (language === 'pl' ? 'bg-red-600 text-white' : 'bg-gray-200')}
+                className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'pl' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}
               >
                 PL
               </button>
             </div>
           </div>
-          <h2 className="text-2xl font-bold mb-4">{t.login}</h2>
+          <h2 className="text-2xl font-bold mb-4 text-primary">{t.login}</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">{t.certLabel}</label>
+              <label className="block text-sm font-medium mb-2 text-primary">{t.certLabel}</label>
               <input
   type="tel"
   inputMode="numeric"
   pattern="[0-9]*"
   value={certNumber}
   onChange={(e) => setCertNumber(e.target.value)}
-  className="w-full px-4 py-2 border rounded-lg"
+  className="w-full px-4 py-2 border-2 border-accent/50 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
   maxLength={7}
 />
             </div>
             <button
               onClick={handleLogin}
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700"
+              className="w-full bg-primary text-accent py-3 rounded-lg font-semibold hover:bg-primaryDark shadow-md hover:shadow-lg transition-all"
             >
               {t.loginBtn}
             </button>
@@ -597,89 +701,95 @@ const HotWorkChecklist = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg" id="checklist-content">
-        <div className="space-y-4 mb-4">
-        <div className="flex justify-between items-center">
-          <img src={brannvernLogo} alt="Brannvernforeningen" className="h-12 md:h-20" />
-          <img src={finansNorgeLogo} alt="Finans Norge Forsikringsdrift" className="h-8 md:h-10" />
+    <div className="min-h-screen bg-gradient-to-br from-accent/5 via-accent/10 to-sand/5 py-8 px-4">
+      <div className="max-w-4xl mx-auto bg-accent/10 rounded-lg shadow-lg border-2 border-primary/10" id="checklist-content">
+        <div className="space-y-4 mb-4 p-6 bg-gradient-to-r from-primary/5 to-accent/5 border-b-2 border-primary/20">
+        <div className="flex justify-start items-center">
+          <img src={vaLogo} alt="Varme Arbeider" className="h-24 md:h-32 cursor-pointer transition-transform hover:scale-105" onClick={resetToLogin} title="Tilbake til innlogging" />
         </div>
         <div className="flex justify-center gap-2">
-          <button onClick={() => setLanguage('no')} className={'px-4 py-2 rounded font-medium ' + (language === 'no' ? 'bg-red-600 text-white' : 'bg-gray-200')}>NO</button>
-          <button onClick={() => setLanguage('en')} className={'px-4 py-2 rounded font-medium ' + (language === 'en' ? 'bg-red-600 text-white' : 'bg-gray-200')}>EN</button>
-          <button onClick={() => setLanguage('pl')} className={'px-4 py-2 rounded font-medium ' + (language === 'pl' ? 'bg-red-600 text-white' : 'bg-gray-200')}>PL</button>
+          <button onClick={() => setLanguage('no')} className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'no' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}>NO</button>
+          <button onClick={() => setLanguage('en')} className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'en' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}>EN</button>
+          <button onClick={() => setLanguage('pl')} className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'pl' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}>PL</button>
         </div>
     </div>
 
         <div className="p-6 space-y-6">
           <div className="grid gap-4">
             <div>
-              <label className="block font-medium mb-2">{t.workType}</label>
+              <label className="block font-medium mb-2 text-primary">{t.workType}</label>
               <input
                 type="text"
                 value={formData.workType}
                 onChange={(e) => setFormData(prev => ({ ...prev, workType: e.target.value }))}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block font-medium mb-2">{t.location}</label>
+              <label className="block font-medium mb-2 text-primary">{t.location}</label>
               <input
                 type="text"
                 value={formData.location}
                 onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block font-medium mb-2">{t.startDateTime}</label>
+                <label className="block font-medium mb-2 text-primary">{t.startDateTime}</label>
                 <div className="flex gap-2">
                   <input
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
-                    className="flex-1 px-3 py-2 border rounded"
+                    className="flex-1 px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-accent/10"
+                    min={formatDateYYYYMMDD(new Date())}
+                    max={formatDateYYYYMMDD(new Date())}
+                    disabled
                   />
                   <input
                     type="time"
                     value={formData.startTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, startTime: e.target.value }))}
-                    className="w-32 px-3 py-2 border rounded"
+                    className="w-32 px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                   />
                 </div>
               </div>
               <div>
-                <label className="block font-medium mb-2">{t.endDateTime}</label>
+                <label className="block font-medium mb-2 text-primary">{t.endDateTime}</label>
                 <div className="flex gap-2">
                   <input
                     type="date"
                     value={formData.endDate}
                     onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
-                    className="flex-1 px-3 py-2 border rounded"
+                    className="flex-1 px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-accent/10"
+                    min={formatDateYYYYMMDD(new Date())}
+                    max={formatDateYYYYMMDD(new Date())}
+                    disabled={timeEnded}
                   />
                   <input
                     type="time"
                     value={formData.endTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, endTime: e.target.value }))}
-                    className="w-32 px-3 py-2 border rounded"
+                    className="w-32 px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+                    disabled={timeEnded}
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="border-t pt-6">
-            <h3 className="font-bold mb-4">{t.client}</h3>
+          <div className="border-t-2 border-primary/30 pt-6 bg-sand/5 rounded-lg p-4">
+            <h3 className="font-bold mb-4 text-primary border-l-4 border-primary pl-3">{t.client}</h3>
             <div className="grid md:grid-cols-3 gap-4 mb-4">
               <input
                 type="text"
                 placeholder={t.client}
                 value={formData.clientName}
                 onChange={(e) => setFormData(prev => ({ ...prev, clientName: e.target.value }))}
-                className="px-3 py-2 border rounded"
+                className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
              <input
   type="tel"
@@ -688,40 +798,40 @@ const HotWorkChecklist = () => {
   placeholder={t.phone}
   value={formData.clientPhone}
   onChange={(e) => setFormData(prev => ({ ...prev, clientPhone: e.target.value }))}
-  className="px-3 py-2 border rounded"
+  className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
 />
               <input
                 type="email"
                 placeholder={t.email}
                 value={formData.clientEmail}
                 onChange={(e) => setFormData(prev => ({ ...prev, clientEmail: e.target.value }))}
-                className="px-3 py-2 border rounded"
+                className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
             </div>
             {formData.clientEmail && (
-  <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
+  <label className="flex items-center gap-2 mb-4 p-3 bg-accent/20 rounded-lg border-2 border-accent/40 hover:bg-accent/30 transition-colors cursor-pointer">
     <input
       type="checkbox"
       checked={formData.sendToClient}
       onChange={(e) => setFormData(prev => ({ ...prev, sendToClient: e.target.checked }))}
-      className="w-4 h-4"
+      className="w-4 h-4 accent-primary cursor-pointer"
     />
-    <span className="text-sm font-medium">{t.sendToClientLabel} ({formData.clientEmail})</span>
+    <span className="text-sm font-medium text-primary">{t.sendToClientLabel} ({formData.clientEmail})</span>
   </label>
 )}
             <div>
-              <label className="block font-medium mb-2">{t.signature}</label>
+              <label className="block font-medium mb-2 text-primary">{t.signature}</label>
               <div className="relative">
                 <canvas
                   ref={signatureRefs.client}
                   width={600}
                   height={150}
-                  className="border rounded w-full h-32 touch-none"
+                  className="border-2 border-accent/50 rounded w-full h-32 touch-none focus-within:border-primary transition-colors"
                   style={{ touchAction: 'none' }}
                 />
                 <button
                   onClick={() => clearSignature(signatureRefs.client, 'clientSignature')}
-                  className="absolute top-2 right-2 bg-gray-200 p-1 rounded"
+                  className="absolute top-2 right-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -729,15 +839,15 @@ const HotWorkChecklist = () => {
             </div>
           </div>
 
-          <div className="border-t pt-6">
-            <h3 className="font-bold mb-4">{t.executor}</h3>
+          <div className="border-t-2 border-primary/30 pt-6 bg-sand/5 rounded-lg p-4">
+            <h3 className="font-bold mb-4 text-primary border-l-4 border-primary pl-3">{t.executor}</h3>
             <div className="grid md:grid-cols-4 gap-4 mb-4">
               <input
                 type="text"
                 placeholder={t.executor}
                 value={formData.executorName}
                 onChange={(e) => setFormData(prev => ({ ...prev, executorName: e.target.value }))}
-                className="px-3 py-2 border rounded"
+                className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
               <input
   type="tel"
@@ -746,14 +856,14 @@ const HotWorkChecklist = () => {
   placeholder={t.phone}
   value={formData.executorPhone}
   onChange={(e) => setFormData(prev => ({ ...prev, executorPhone: e.target.value }))}
-  className="px-3 py-2 border rounded"
+  className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
 />
               <input
                 type="email"
                 placeholder={t.email}
                 value={formData.executorEmail}
                 onChange={(e) => setFormData(prev => ({ ...prev, executorEmail: e.target.value }))}
-                className="px-3 py-2 border rounded"
+                className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
               <input
   type="tel"
@@ -762,33 +872,33 @@ const HotWorkChecklist = () => {
   placeholder={t.certNr}
   value={formData.executorCert}
   onChange={(e) => setFormData(prev => ({ ...prev, executorCert: e.target.value }))}
-  className="px-3 py-2 border rounded"
+  className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-accent/10"
 />
             </div>
             {formData.executorEmail && (
-  <label className="flex items-center gap-2 mb-4 p-2 bg-blue-50 rounded">
+  <label className="flex items-center gap-2 mb-4 p-3 bg-accent/20 rounded-lg border-2 border-accent/40 hover:bg-accent/30 transition-colors cursor-pointer">
     <input
       type="checkbox"
       checked={formData.sendToExecutor}
       onChange={(e) => setFormData(prev => ({ ...prev, sendToExecutor: e.target.checked }))}
-      className="w-4 h-4"
+      className="w-4 h-4 accent-primary cursor-pointer"
     />
-    <span className="text-sm font-medium">{t.sendToExecutorLabel} ({formData.executorEmail})</span>
+    <span className="text-sm font-medium text-primary">{t.sendToExecutorLabel} ({formData.executorEmail})</span>
   </label>
 )}
             <div>
-              <label className="block font-medium mb-2">{t.signature}</label>
+              <label className="block font-medium mb-2 text-primary">{t.signature}</label>
               <div className="relative">
                 <canvas
                   ref={signatureRefs.executor}
                   width={600}
                   height={150}
-                  className="border rounded w-full h-32 touch-none"
+                  className="border-2 border-accent/50 rounded w-full h-32 touch-none focus-within:border-primary transition-colors"
                   style={{ touchAction: 'none' }}
                 />
                 <button
                   onClick={() => clearSignature(signatureRefs.executor, 'executorSignature')}
-                  className="absolute top-2 right-2 bg-gray-200 p-1 rounded"
+                  className="absolute top-2 right-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -796,15 +906,15 @@ const HotWorkChecklist = () => {
             </div>
           </div>
 
-          <div className="border-t pt-6">
-  <h3 className="font-bold mb-4">{t.fireWatch}</h3>
+          <div className="border-t-2 border-primary/30 pt-6 bg-sand/5 rounded-lg p-4">
+  <h3 className="font-bold mb-4 text-primary border-l-4 border-primary pl-3">{t.fireWatch}</h3>
   <div className="grid md:grid-cols-3 gap-4 mb-4">
     <input
       type="text"
       placeholder={t.fireWatch}
       value={formData.watchName}
       onChange={(e) => setFormData(prev => ({ ...prev, watchName: e.target.value }))}
-      className="px-3 py-2 border rounded"
+      className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
     />
     <input
   type="tel"
@@ -813,7 +923,7 @@ const HotWorkChecklist = () => {
   placeholder={t.phone}
   value={formData.watchPhone}
   onChange={(e) => setFormData(prev => ({ ...prev, watchPhone: e.target.value }))}
-  className="px-3 py-2 border rounded"
+  className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
 />
 <input
   type="tel"
@@ -822,22 +932,22 @@ const HotWorkChecklist = () => {
   placeholder={t.certNr}
   value={formData.watchCert}
   onChange={(e) => setFormData(prev => ({ ...prev, watchCert: e.target.value }))}
-  className="px-3 py-2 border rounded"
+  className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
 />
   </div>
             <div>
-              <label className="block font-medium mb-2">{t.signature}</label>
+              <label className="block font-medium mb-2 text-primary">{t.signature}</label>
               <div className="relative">
                 <canvas
                   ref={signatureRefs.watch}
                   width={600}
                   height={150}
-                  className="border rounded w-full h-32 touch-none"
+                  className="border-2 border-accent/50 rounded w-full h-32 touch-none focus-within:border-primary transition-colors"
                   style={{ touchAction: 'none' }}
                 />
                 <button
                   onClick={() => clearSignature(signatureRefs.watch, 'watchSignature')}
-                  className="absolute top-2 right-2 bg-gray-200 p-1 rounded"
+                  className="absolute top-2 right-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -845,12 +955,12 @@ const HotWorkChecklist = () => {
             </div>
           </div>
 
-          <div className="border-t pt-6">
-            <h3 className="font-bold mb-4 text-lg">{t.safetyReq}</h3>
-            <h4 className="font-semibold mb-3">{t.beforeWork}</h4>
+          <div className="border-t-2 border-primary/30 pt-6 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4">
+            <h3 className="font-bold mb-4 text-lg text-primary border-l-4 border-primary pl-3">{t.safetyReq}</h3>
+            <h4 className="font-semibold mb-3 text-primaryDark">{t.beforeWork}</h4>
             <div className="space-y-2">
               {t.items.slice(0, 14).map((item, index) => (
-                <label key={index} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded">
+                <label key={index} className="flex items-start gap-3 p-2 hover:bg-accent/20 rounded transition-colors border-l-2 border-transparent hover:border-accent/50">
                   <input
                     type="checkbox"
                     checked={formData.checklist[index]}
@@ -859,7 +969,7 @@ const HotWorkChecklist = () => {
                       newChecklist[index] = e.target.checked;
                       setFormData(prev => ({ ...prev, checklist: newChecklist }));
                     }}
-                    className="mt-1 w-4 h-4"
+                    className="mt-1 w-4 h-4 accent-primary cursor-pointer"
                   />
                   <span className="text-sm">
                     <strong>{index + 1}.</strong> {item}
@@ -868,7 +978,7 @@ const HotWorkChecklist = () => {
                         type="text"
                         value={formData.detectorDisconnectedBy}
                         onChange={(e) => setFormData(prev => ({ ...prev, detectorDisconnectedBy: e.target.value }))}
-                        className="ml-2 px-2 py-1 border rounded text-sm w-48"
+                        className="ml-2 px-2 py-1 border-2 border-accent/50 rounded text-sm w-48 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                         placeholder="Navn"
                       />
                     )}
@@ -878,23 +988,23 @@ const HotWorkChecklist = () => {
             </div>
 
             <div className="mt-6">
-              <label className="flex items-start gap-3 p-3 border rounded bg-gray-50">
+              <label className="flex items-start gap-3 p-3 border-2 border-accent/60 rounded-lg bg-accent/20 hover:bg-accent/30 transition-colors cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.explosiveArea}
                   onChange={(e) => setFormData(prev => ({ ...prev, explosiveArea: e.target.checked }))}
-                  className="mt-1 w-4 h-4"
+                  className="mt-1 w-4 h-4 accent-primary cursor-pointer"
                 />
-                <span className="text-sm font-medium">{t.explosiveTitle}</span>
+                <span className="text-sm font-medium text-primary">{t.explosiveTitle}</span>
               </label>
               {formData.explosiveArea && (
-                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                <div className="mt-2 p-3 bg-accent/20 border-2 border-accent/60 rounded-lg">
                   <p className="text-sm mb-2"><strong>15.</strong> {t.items[14]}</p>
                   <input
                     type="text"
                     value={formData.controllerName}
                     onChange={(e) => setFormData(prev => ({ ...prev, controllerName: e.target.value }))}
-                    className="w-full px-3 py-2 border rounded"
+                    className="w-full px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                     placeholder="Navn på kontrollør"
                   />
                 </div>
@@ -902,10 +1012,10 @@ const HotWorkChecklist = () => {
             </div>
 
             <div className="mt-6">
-              <h4 className="font-semibold mb-3">{t.afterWork}</h4>
+              <h4 className="font-semibold mb-3 text-primaryDark">{t.afterWork}</h4>
               <div className="space-y-2">
                 {t.items.slice(15, 18).map((item, index) => (
-                  <label key={index + 15} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded">
+                  <label key={index + 15} className="flex items-start gap-3 p-2 hover:bg-accent/20 rounded transition-colors border-l-2 border-transparent hover:border-accent/50">
                     <input
                       type="checkbox"
                       checked={formData.checklist[index + 15]}
@@ -914,7 +1024,7 @@ const HotWorkChecklist = () => {
                         newChecklist[index + 15] = e.target.checked;
                         setFormData(prev => ({ ...prev, checklist: newChecklist }));
                       }}
-                      className="mt-1 w-4 h-4"
+                      className="mt-1 w-4 h-4 accent-primary cursor-pointer"
                     />
                     <span className="text-sm">
                       <strong>{index + 16}.</strong> {item}
@@ -923,7 +1033,7 @@ const HotWorkChecklist = () => {
                           type="text"
                           value={formData.detectorReconnectedBy}
                           onChange={(e) => setFormData(prev => ({ ...prev, detectorReconnectedBy: e.target.value }))}
-                          className="ml-2 px-2 py-1 border rounded text-sm w-48"
+                          className="ml-2 px-2 py-1 border-2 border-accent/50 rounded text-sm w-48 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                           placeholder="Navn"
                         />
                       )}
@@ -934,10 +1044,10 @@ const HotWorkChecklist = () => {
             </div>
           </div>
 
-          <div className="border-t pt-6">
-            <h3 className="font-bold mb-4">{t.addPhoto}</h3>
-            <div className="mb-4 flex gap-2">
-  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700">
+          <div className="border-t-2 border-primary/30 pt-6 bg-accent/5 rounded-lg p-4">
+            <h3 className="font-bold mb-4 text-primary">{t.addPhoto}</h3>
+              <div className="mb-4 flex gap-2">
+  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-accent rounded-lg cursor-pointer hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary">
     <Camera size={20} />
     <span>{t.takePhoto}</span>
     <input
@@ -948,7 +1058,7 @@ const HotWorkChecklist = () => {
       className="hidden"
     />
   </label>
-  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg cursor-pointer hover:bg-green-700">
+  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-accent rounded-lg cursor-pointer hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary">
     <Download size={20} />
     <span>{t.selectFromGallery}</span>
     <input
@@ -963,11 +1073,11 @@ const HotWorkChecklist = () => {
             {images.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {images.map((img, index) => (
-                  <div key={index} className="relative">
-                    <img src={img} alt={'Bilde ' + (index + 1)} className="w-full h-32 object-cover rounded border" />
+                  <div key={index} className="relative border-2 border-accent/50 rounded-lg overflow-hidden hover:border-primary transition-colors">
+                    <img src={img} alt={'Bilde ' + (index + 1)} className="w-full h-32 object-cover" />
                     <button
                       onClick={() => removeImage(index)}
-                      className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full"
+                      className="absolute top-2 right-2 bg-primary text-accent p-1 rounded-full hover:bg-primaryDark shadow-md transition-colors"
                     >
                       <X size={16} />
                     </button>
@@ -977,24 +1087,24 @@ const HotWorkChecklist = () => {
             )}
           </div>
 
-          <div className="border-t pt-6 flex flex-col sm:flex-row gap-4">
+          <div className="border-t-2 border-primary/30 pt-6 flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4">
   <button
     onClick={generatePDF}
-    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700"
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-accent rounded-lg font-semibold hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary"
   >
     <Download size={20} />
     {t.generate}
   </button>
   <button
     onClick={sendEmail}
-    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-accent rounded-lg font-semibold hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary"
   >
     <Mail size={20} />
     {t.sendEmail}
   </button>
   <button
     onClick={copyEmailContent}
-    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700"
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-accent rounded-lg font-semibold hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary"
     title={t.copyEmail}
   >
     <Mail size={20} />
