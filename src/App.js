@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Download, Mail, X } from 'lucide-react';
+import { Camera, Download, Mail, X, Check } from 'lucide-react';
 
 const HotWorkChecklist = () => {
   const DRAFT_KEY = 'va_checklist_draft_v1';
@@ -74,7 +74,8 @@ const HotWorkChecklist = () => {
       sendToClientLabel: 'Send e-post til oppdragsgiver',  
       sendToExecutorLabel: 'Send e-post til utførende',
       back: 'Tilbake',
-      resetConfirm: 'Hvis du går tilbake til innlogging vil pågående skjema bli slettet. Vil du fortsette?',    
+      resetConfirm: 'Hvis du går tilbake til innlogging vil pågående skjema bli slettet. Vil du fortsette?',
+      sign: 'Signer',    
       items: [
         'Oppdragstaker har ansvarsdekning i forhold til oppdragets størrelse og risiko.',
         'Skriftlig risikovurdering av takarbeid er gjennomført og vedlagt denne sjekklisten. Ved annet arbeid enn takarbeid kan avkrysning utelates.',
@@ -129,7 +130,8 @@ const HotWorkChecklist = () => {
       sendToClientLabel: 'Send email to client',  
       sendToExecutorLabel: 'Send email to executor',
       back: 'Back',
-      resetConfirm: 'If you go back to login, the current form will be deleted. Do you want to continue?',  
+      resetConfirm: 'If you go back to login, the current form will be deleted. Do you want to continue?',
+      sign: 'Sign',  
       items: [
         'The contractor has liability cover insurance appropriate to the scope of the work and the risk involved.',
         'A written risk assessment of roof work has been completed and enclosed with this checklist. This check box may be omitted for any work other than roof work.',
@@ -184,7 +186,8 @@ const HotWorkChecklist = () => {
       sendToClientLabel: 'Wyślij e-mail do klienta',  
       sendToExecutorLabel: 'Wyślij e-mail do wykonawcy',
       back: 'Wstecz',
-      resetConfirm: 'Jeśli wrócisz do logowania, bieżący formularz zostanie usunięty. Czy chcesz kontynuować?', 
+      resetConfirm: 'Jeśli wrócisz do logowania, bieżący formularz zostanie usunięty. Czy chcesz kontynuować?',
+      sign: 'Podpisz', 
       items: [
         'Zleceniobiorca posiada ubezpieczenie od odpowiedzialności cywilnej stosownie do wielkości zlecenia i wiążącego się z nim ryzyka.',
         'Do tej listy kontrolnej załączono pisemną ocenę ryzyka prac dekarskich. W przypadku prac innych niż dekarskie można nie zaznaczać tej pozycji.',
@@ -283,12 +286,19 @@ const HotWorkChecklist = () => {
     activeSignatureRef.current = field;
   };
 
+  const deactivateSignature = () => {
+    setActiveSignature(null);
+    activeSignatureRef.current = null;
+  };
+
   const startSignature = (ref, field) => {
     const canvas = ref.current;
     if (!canvas) return;
     
     const ctx = canvas.getContext('2d');
     let drawing = false;
+    let touchStartPos = null;
+    let isTouch = false;
 
     const getPos = (e) => {
       const rect = canvas.getBoundingClientRect();
@@ -300,11 +310,11 @@ const HotWorkChecklist = () => {
     };
 
     const startDraw = (e) => {
-      e.preventDefault();
       if (activeSignatureRef.current !== field) {
         // Field not active, don't start drawing
         return;
       }
+      e.preventDefault();
       drawing = true;
       const pos = getPos(e);
       ctx.beginPath();
@@ -312,8 +322,8 @@ const HotWorkChecklist = () => {
     };
 
     const draw = (e) => {
-      e.preventDefault();
       if (!drawing || activeSignatureRef.current !== field) return;
+      e.preventDefault();
       const pos = getPos(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.strokeStyle = '#000';
@@ -323,10 +333,12 @@ const HotWorkChecklist = () => {
     };
 
     const endDraw = () => {
-      if (activeSignatureRef.current === field) {
+      if (activeSignatureRef.current === field && drawing) {
         drawing = false;
         setFormData(prev => ({ ...prev, [field]: canvas.toDataURL() }));
       }
+      touchStartPos = null;
+      isTouch = false;
     };
 
     const handleClick = (e) => {
@@ -335,22 +347,62 @@ const HotWorkChecklist = () => {
       }
     };
 
+    const handleTouchStart = (e) => {
+      isTouch = true;
+      const touch = e.touches[0];
+      touchStartPos = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now()
+      };
+      
+      if (activeSignatureRef.current !== field) {
+        // Activate field on touch
+        activateSignature(field);
+        return;
+      }
+      
+      // Field is active, start drawing
+      e.preventDefault();
+      startDraw(e);
+    };
+
+    const handleTouchMove = (e) => {
+      if (!drawing || activeSignatureRef.current !== field) {
+        // Allow scrolling if not drawing
+        return;
+      }
+      e.preventDefault();
+      draw(e);
+    };
+
+    const handleTouchEnd = (e) => {
+      if (drawing) {
+        e.preventDefault();
+      }
+      endDraw();
+    };
+
     canvas.addEventListener('click', handleClick);
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', endDraw);
-    canvas.addEventListener('touchstart', startDraw);
-    canvas.addEventListener('touchmove', draw);
-    canvas.addEventListener('touchend', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    canvas.addEventListener('touchcancel', endDraw);
 
     return () => {
       canvas.removeEventListener('click', handleClick);
       canvas.removeEventListener('mousedown', startDraw);
       canvas.removeEventListener('mousemove', draw);
       canvas.removeEventListener('mouseup', endDraw);
-      canvas.removeEventListener('touchstart', startDraw);
-      canvas.removeEventListener('touchmove', draw);
-      canvas.removeEventListener('touchend', endDraw);
+      canvas.removeEventListener('mouseleave', endDraw);
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('touchend', handleTouchEnd);
+      canvas.removeEventListener('touchcancel', endDraw);
     };
   };
 
@@ -903,15 +955,33 @@ const HotWorkChecklist = () => {
                   width={600}
                   height={150}
                   onClick={() => activateSignature('clientSignature')}
-                  className={'border-2 rounded w-full h-32 touch-none transition-colors cursor-pointer ' + (activeSignature === 'clientSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
-                  style={{ touchAction: 'none' }}
+                  className={'border-2 rounded w-full h-32 transition-colors cursor-pointer ' + (activeSignature === 'clientSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
+                  style={{ touchAction: activeSignature === 'clientSignature' ? 'none' : 'pan-y' }}
                 />
-                <button
-                  onClick={() => clearSignature(signatureRefs.client, 'clientSignature')}
-                  className="absolute top-2 right-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
-                >
-                  <X size={16} />
-                </button>
+                {activeSignature === 'clientSignature' ? (
+                  <>
+                    <button
+                      onClick={() => clearSignature(signatureRefs.client, 'clientSignature')}
+                      className="absolute top-2 left-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                    <button
+                      onClick={deactivateSignature}
+                      className="absolute top-2 right-2 bg-primary text-accent p-1 rounded transition-colors hover:bg-primaryDark shadow-md"
+                      title="Ferdig"
+                    >
+                      <Check size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => activateSignature('clientSignature')}
+                    className="absolute inset-0 flex items-center justify-center bg-accent/20 hover:bg-accent/30 border-2 border-dashed border-accent/60 rounded transition-colors"
+                  >
+                    <span className="text-primary font-medium">{t.sign}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -971,15 +1041,33 @@ const HotWorkChecklist = () => {
                   width={600}
                   height={150}
                   onClick={() => activateSignature('executorSignature')}
-                  className={'border-2 rounded w-full h-32 touch-none transition-colors cursor-pointer ' + (activeSignature === 'executorSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
-                  style={{ touchAction: 'none' }}
+                  className={'border-2 rounded w-full h-32 transition-colors cursor-pointer ' + (activeSignature === 'executorSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
+                  style={{ touchAction: activeSignature === 'executorSignature' ? 'none' : 'pan-y' }}
                 />
-                <button
-                  onClick={() => clearSignature(signatureRefs.executor, 'executorSignature')}
-                  className="absolute top-2 right-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
-                >
-                  <X size={16} />
-                </button>
+                {activeSignature === 'executorSignature' ? (
+                  <>
+                    <button
+                      onClick={() => clearSignature(signatureRefs.executor, 'executorSignature')}
+                      className="absolute top-2 left-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                    <button
+                      onClick={deactivateSignature}
+                      className="absolute top-2 right-2 bg-primary text-accent p-1 rounded transition-colors hover:bg-primaryDark shadow-md"
+                      title="Ferdig"
+                    >
+                      <Check size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => activateSignature('executorSignature')}
+                    className="absolute inset-0 flex items-center justify-center bg-accent/20 hover:bg-accent/30 border-2 border-dashed border-accent/60 rounded transition-colors"
+                  >
+                    <span className="text-primary font-medium">{t.sign}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1021,15 +1109,33 @@ const HotWorkChecklist = () => {
                   width={600}
                   height={150}
                   onClick={() => activateSignature('watchSignature')}
-                  className={'border-2 rounded w-full h-32 touch-none transition-colors cursor-pointer ' + (activeSignature === 'watchSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
-                  style={{ touchAction: 'none' }}
+                  className={'border-2 rounded w-full h-32 transition-colors cursor-pointer ' + (activeSignature === 'watchSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
+                  style={{ touchAction: activeSignature === 'watchSignature' ? 'none' : 'pan-y' }}
                 />
-                <button
-                  onClick={() => clearSignature(signatureRefs.watch, 'watchSignature')}
-                  className="absolute top-2 right-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
-                >
-                  <X size={16} />
-                </button>
+                {activeSignature === 'watchSignature' ? (
+                  <>
+                    <button
+                      onClick={() => clearSignature(signatureRefs.watch, 'watchSignature')}
+                      className="absolute top-2 left-2 bg-accent/80 hover:bg-accent text-primary p-1 rounded transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                    <button
+                      onClick={deactivateSignature}
+                      className="absolute top-2 right-2 bg-primary text-accent p-1 rounded transition-colors hover:bg-primaryDark shadow-md"
+                      title="Ferdig"
+                    >
+                      <Check size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => activateSignature('watchSignature')}
+                    className="absolute inset-0 flex items-center justify-center bg-accent/20 hover:bg-accent/30 border-2 border-dashed border-accent/60 rounded transition-colors"
+                  >
+                    <span className="text-primary font-medium">{t.sign}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
