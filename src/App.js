@@ -8,6 +8,8 @@ const HotWorkChecklist = () => {
   const [certNumber, setCertNumber] = useState('');
   const [images, setImages] = useState([]);
   const [timeEnded, setTimeEnded] = useState(false);
+  const [activeSignature, setActiveSignature] = useState(null);
+  const activeSignatureRef = useRef(null);
   const initialFormData = {
     workType: '',
     location: '',
@@ -70,7 +72,9 @@ const HotWorkChecklist = () => {
       sendEmail: 'Send på e-post',
       copyEmail: 'Kopier e-post',        
       sendToClientLabel: 'Send e-post til oppdragsgiver',  
-      sendToExecutorLabel: 'Send e-post til utførende',    
+      sendToExecutorLabel: 'Send e-post til utførende',
+      back: 'Tilbake',
+      resetConfirm: 'Hvis du går tilbake til innlogging vil pågående skjema bli slettet. Vil du fortsette?',    
       items: [
         'Oppdragstaker har ansvarsdekning i forhold til oppdragets størrelse og risiko.',
         'Skriftlig risikovurdering av takarbeid er gjennomført og vedlagt denne sjekklisten. Ved annet arbeid enn takarbeid kan avkrysning utelates.',
@@ -123,7 +127,9 @@ const HotWorkChecklist = () => {
       sendEmail: 'Send by email',
       copyEmail: 'Copy email',              
       sendToClientLabel: 'Send email to client',  
-      sendToExecutorLabel: 'Send email to executor',  
+      sendToExecutorLabel: 'Send email to executor',
+      back: 'Back',
+      resetConfirm: 'If you go back to login, the current form will be deleted. Do you want to continue?',  
       items: [
         'The contractor has liability cover insurance appropriate to the scope of the work and the risk involved.',
         'A written risk assessment of roof work has been completed and enclosed with this checklist. This check box may be omitted for any work other than roof work.',
@@ -176,7 +182,9 @@ const HotWorkChecklist = () => {
       sendEmail: 'Wyślij e-mailem',
       copyEmail: 'Kopiuj e-mail',           
       sendToClientLabel: 'Wyślij e-mail do klienta',  
-      sendToExecutorLabel: 'Wyślij e-mail do wykonawcy', 
+      sendToExecutorLabel: 'Wyślij e-mail do wykonawcy',
+      back: 'Wstecz',
+      resetConfirm: 'Jeśli wrócisz do logowania, bieżący formularz zostanie usunięty. Czy chcesz kontynuować?', 
       items: [
         'Zleceniobiorca posiada ubezpieczenie od odpowiedzialności cywilnej stosownie do wielkości zlecenia i wiążącego się z nim ryzyka.',
         'Do tej listy kontrolnej załączono pisemną ocenę ryzyka prac dekarskich. W przypadku prac innych niż dekarskie można nie zaznaczać tej pozycji.',
@@ -218,12 +226,14 @@ const HotWorkChecklist = () => {
   };
 
   const resetToLogin = () => {
-    const confirmLeave = window.confirm('Hvis du går tilbake til innlogging vil pågående skjema bli slettet. Vil du fortsette?');
+    const confirmLeave = window.confirm(t.resetConfirm);
     if (!confirmLeave) return;
     setAuthenticated(false);
     setCertNumber('');
     setImages([]);
     setTimeEnded(false);
+    setActiveSignature(null);
+    activeSignatureRef.current = null;
     setFormData(initialFormData);
     try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
     Object.values(signatureRefs).forEach(ref => {
@@ -268,6 +278,11 @@ const HotWorkChecklist = () => {
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const activateSignature = (field) => {
+    setActiveSignature(field);
+    activeSignatureRef.current = field;
+  };
+
   const startSignature = (ref, field) => {
     const canvas = ref.current;
     if (!canvas) return;
@@ -286,6 +301,10 @@ const HotWorkChecklist = () => {
 
     const startDraw = (e) => {
       e.preventDefault();
+      if (activeSignatureRef.current !== field) {
+        // Field not active, don't start drawing
+        return;
+      }
       drawing = true;
       const pos = getPos(e);
       ctx.beginPath();
@@ -294,7 +313,7 @@ const HotWorkChecklist = () => {
 
     const draw = (e) => {
       e.preventDefault();
-      if (!drawing) return;
+      if (!drawing || activeSignatureRef.current !== field) return;
       const pos = getPos(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.strokeStyle = '#000';
@@ -304,16 +323,35 @@ const HotWorkChecklist = () => {
     };
 
     const endDraw = () => {
-      drawing = false;
-      setFormData(prev => ({ ...prev, [field]: canvas.toDataURL() }));
+      if (activeSignatureRef.current === field) {
+        drawing = false;
+        setFormData(prev => ({ ...prev, [field]: canvas.toDataURL() }));
+      }
     };
 
+    const handleClick = (e) => {
+      if (activeSignatureRef.current !== field) {
+        activateSignature(field);
+      }
+    };
+
+    canvas.addEventListener('click', handleClick);
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', endDraw);
     canvas.addEventListener('touchstart', startDraw);
     canvas.addEventListener('touchmove', draw);
     canvas.addEventListener('touchend', endDraw);
+
+    return () => {
+      canvas.removeEventListener('click', handleClick);
+      canvas.removeEventListener('mousedown', startDraw);
+      canvas.removeEventListener('mousemove', draw);
+      canvas.removeEventListener('mouseup', endDraw);
+      canvas.removeEventListener('touchstart', startDraw);
+      canvas.removeEventListener('touchmove', draw);
+      canvas.removeEventListener('touchend', endDraw);
+    };
   };
 
   const clearSignature = (ref, field) => {
@@ -327,12 +365,17 @@ const HotWorkChecklist = () => {
 
   useEffect(() => {
     if (authenticated) {
+      const cleanupFunctions = [];
       Object.entries(signatureRefs).forEach(([key, ref]) => {
         if (ref.current) {
           const field = key + 'Signature';
-          startSignature(ref, field);
+          const cleanup = startSignature(ref, field);
+          if (cleanup) cleanupFunctions.push(cleanup);
         }
       });
+      return () => {
+        cleanupFunctions.forEach(cleanup => cleanup());
+      };
     }
   }, [authenticated]);
 
@@ -355,6 +398,31 @@ const HotWorkChecklist = () => {
       // ignore corrupt drafts
     }
   }, []);
+
+  // Restore signatures to canvas after draft is loaded and authenticated
+  useEffect(() => {
+    if (authenticated && formData) {
+      const restoreSignature = (ref, signatureData) => {
+        if (ref.current && signatureData) {
+          const canvas = ref.current;
+          const ctx = canvas.getContext('2d');
+          const img = new Image();
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          };
+          img.src = signatureData;
+        }
+      };
+
+      // Small delay to ensure canvas refs are ready
+      setTimeout(() => {
+        restoreSignature(signatureRefs.client, formData.clientSignature);
+        restoreSignature(signatureRefs.executor, formData.executorSignature);
+        restoreSignature(signatureRefs.watch, formData.watchSignature);
+      }, 100);
+    }
+  }, [authenticated, formData.clientSignature, formData.executorSignature, formData.watchSignature]);
 
   // Debounced auto-save when state changes
   useEffect(() => {
@@ -472,7 +540,7 @@ const HotWorkChecklist = () => {
       '</div>' +
       imagesHTML +
       '<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 10px; color: #666;">' +
-        '<p>Generert: ' + new Date().toLocaleDateString('nb-NO') + ' ' + new Date().toLocaleTimeString('nb-NO') + '</p>' +
+        '<p>Generert: ' + new Date().toLocaleDateString('nb-NO') + ' ' + formatTimeHHMM(new Date()) + '</p>' +
       '</div>';
     
     const printWindow = window.open('', '_blank');
@@ -703,9 +771,17 @@ const HotWorkChecklist = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/5 via-accent/10 to-sand/5 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-accent/10 rounded-lg shadow-lg border-2 border-primary/10" id="checklist-content">
+        <div className="relative">
+          <button
+            onClick={resetToLogin}
+            className="absolute top-4 left-4 px-4 py-2 bg-primary text-accent rounded-lg font-medium hover:bg-primaryDark shadow-md transition-all border-2 border-primary z-10"
+          >
+            {t.back}
+          </button>
+        </div>
         <div className="space-y-4 mb-4 p-6 bg-gradient-to-r from-primary/5 to-accent/5 border-b-2 border-primary/20">
-        <div className="flex justify-start items-center">
-          <img src={vaLogo} alt="Varme Arbeider" className="h-24 md:h-32 cursor-pointer transition-transform hover:scale-105" onClick={resetToLogin} title="Tilbake til innlogging" />
+        <div className="flex justify-center items-center">
+          <img src={vaLogo} alt="Varme Arbeider" className="h-32 md:h-40 cursor-pointer transition-transform hover:scale-105" onClick={resetToLogin} title="Tilbake til innlogging" />
         </div>
         <div className="flex justify-center gap-2">
           <button onClick={() => setLanguage('no')} className={'px-4 py-2 rounded font-medium transition-all ' + (language === 'no' ? 'bg-primary text-accent shadow-md' : 'bg-accent/30 text-primary hover:bg-accent/50 border border-primary/30')}>NO</button>
@@ -826,7 +902,8 @@ const HotWorkChecklist = () => {
                   ref={signatureRefs.client}
                   width={600}
                   height={150}
-                  className="border-2 border-accent/50 rounded w-full h-32 touch-none focus-within:border-primary transition-colors"
+                  onClick={() => activateSignature('clientSignature')}
+                  className={'border-2 rounded w-full h-32 touch-none transition-colors cursor-pointer ' + (activeSignature === 'clientSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
                   style={{ touchAction: 'none' }}
                 />
                 <button
@@ -893,7 +970,8 @@ const HotWorkChecklist = () => {
                   ref={signatureRefs.executor}
                   width={600}
                   height={150}
-                  className="border-2 border-accent/50 rounded w-full h-32 touch-none focus-within:border-primary transition-colors"
+                  onClick={() => activateSignature('executorSignature')}
+                  className={'border-2 rounded w-full h-32 touch-none transition-colors cursor-pointer ' + (activeSignature === 'executorSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
                   style={{ touchAction: 'none' }}
                 />
                 <button
@@ -942,7 +1020,8 @@ const HotWorkChecklist = () => {
                   ref={signatureRefs.watch}
                   width={600}
                   height={150}
-                  className="border-2 border-accent/50 rounded w-full h-32 touch-none focus-within:border-primary transition-colors"
+                  onClick={() => activateSignature('watchSignature')}
+                  className={'border-2 rounded w-full h-32 touch-none transition-colors cursor-pointer ' + (activeSignature === 'watchSignature' ? 'border-primary bg-accent/10' : 'border-accent/50 bg-accent/5')}
                   style={{ touchAction: 'none' }}
                 />
                 <button
@@ -1101,15 +1180,6 @@ const HotWorkChecklist = () => {
   >
     <Mail size={20} />
     {t.sendEmail}
-  </button>
-  <button
-    onClick={copyEmailContent}
-    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-accent rounded-lg font-semibold hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary"
-    title={t.copyEmail}
-  >
-    <Mail size={20} />
-    <span className="hidden sm:inline">{t.copyEmail}</span>
-    <span className="sm:hidden">Kopier</span>
   </button>
 </div>
         </div>
