@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+# Varme Arbeider Sjekkliste
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+En digital sjekkliste for varme arbeider med e-post integrasjon. Appen genererer PDF-dokumenter som sendes med vedlegg via e-post.
 
-## Available Scripts
+## 🚀 Quick Start
 
-In the project directory, you can run:
+Se [QUICK_START.md](./QUICK_START.md) for 5-minutters setup!
 
-### `npm start`
+## 📖 Dokumentasjon
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **[QUICK_START.md](./QUICK_START.md)** - Rask start (5 min)
+- **[FIREBASE_SETUP.md](./FIREBASE_SETUP.md)** - Detaljert oppsettsveiledning
+- **[IMPLEMENTATION_COMPLETE.md](./IMPLEMENTATION_COMPLETE.md)** - Oversikt over implementeringen
+- **[CHANGES.md](./CHANGES.md)** - Hva som er endret
+- **[CHECKLIST.md](./CHECKLIST.md)** - Implementering checklist
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ✨ Features
 
-### `npm test`
+- ✅ Flerspråklig (Norsk, Engelsk, Polsk)
+- ✅ Digital signatur-capturing
+- ✅ Bilde-dokumentasjon
+- ✅ PDF-generering (client-side)
+- ✅ E-post med PDF vedlegg (Resend + Firebase)
+- ✅ Bekreftelsesdialog før sending
+- ✅ Firebase Hosting deployment
+- ✅ Responsive design
+- ✅ Lokal lagring av utkast
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🛠️ Teknologi Stack
 
-### `npm run build`
+### Frontend
+- React 19+
+- Tailwind CSS
+- html2pdf.js (PDF-generering)
+- Firebase SDK (Cloud Functions)
+- Lucide icons
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Backend
+- Firebase Cloud Functions
+- Node.js 20+
+- Resend (E-post API)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Hosting
+- Firebase Hosting
+- Cloud Functions
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 📦 Available Scripts
 
-### `npm run eject`
+```bash
+# Start development
+npm start
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Build for production
+npm run build
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+# Deploy to Firebase
+firebase deploy
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# View Cloud Function logs
+firebase functions:log
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🔧 Installation & Setup
 
-## Learn More
+See [QUICK_START.md](./QUICK_START.md) for step-by-step instructions (5 minutes)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 📊 Architecture
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+React App (Client)
+    ↓ PDF Base64
+Cloud Functions (Backend)
+    ↓ HTTP API
+Resend (E-post Service)
+    ↓ SMTP
+Mottaker (E-post)
+```
 
-### Code Splitting
+## 💰 Pricing
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+| Service | Free Tier | Paid |
+|---------|-----------|------|
+| Firebase Hosting | 10 GB/month | $0.18/GB |
+| Cloud Functions | 2M calls/month | $0.40/M calls |
+| Resend | 100/day | $20/month |
+| **Total** | **Free** | **$0-25/month** |
 
-### Analyzing the Bundle Size
+## 🔐 Security
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- API keys stored in `.env` (not committed)
+- Resend API key server-side only
+- Input validation
+- Error handling
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Ready to deploy?** Start with [QUICK_START.md](./QUICK_START.md) 🚀
