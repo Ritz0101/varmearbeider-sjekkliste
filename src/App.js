@@ -1,5 +1,78 @@
 import React, { useState, useRef, useEffect } from 'react';
+<<<<<<< HEAD
+import { Camera, Download, Mail, X, AlertCircle } from 'lucide-react';
+import { initializeApp } from 'firebase/app';
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
+import html2pdf from 'html2pdf.js';
+
+// Firebase Config - OPPDATER MED DINE VERDIER
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "dummy",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "dummy",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "dummy",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "dummy",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "dummy",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "dummy"
+};
+
+let firebaseApp, functions;
+try {
+  firebaseApp = initializeApp(firebaseConfig);
+  functions = getFunctions(firebaseApp);
+  
+  // Bruk emulator i development
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+    console.log('✅ Bruker Firebase Functions Emulator');
+  }
+} catch (e) {
+  console.warn('Firebase not configured yet', e);
+}
+
+// Bekreftelsesmodal-komponent
+const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, isLoading }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-2xl border-2 border-primary/20 max-w-md w-full p-6">
+        <div className="flex items-start gap-3 mb-4">
+          <AlertCircle className="text-primary flex-shrink-0 mt-1" size={24} />
+          <h2 className="text-xl font-bold text-primary">{title}</h2>
+        </div>
+        
+        <p className="text-primaryDark mb-6">{message}</p>
+        
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 bg-accent/30 text-primary rounded-lg font-semibold hover:bg-accent/50 transition-colors disabled:opacity-50"
+          >
+            Nei, avbryt
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 bg-primary text-accent rounded-lg font-semibold hover:bg-primaryDark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-accent border-t-transparent"></div>
+                Sender...
+              </>
+            ) : (
+              'Ja, send e-post'
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+=======
 import { Camera, Download, Mail, X, Check } from 'lucide-react';
+>>>>>>> 159fea50368f04d024f28b2c1f23ff9b81c0bf4f
 
 const HotWorkChecklist = () => {
   const DRAFT_KEY = 'va_checklist_draft_v1';
@@ -8,8 +81,19 @@ const HotWorkChecklist = () => {
   const [certNumber, setCertNumber] = useState('');
   const [images, setImages] = useState([]);
   const [timeEnded, setTimeEnded] = useState(false);
+<<<<<<< HEAD
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [emailData, setEmailData] = useState(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  
+  // Toggle for custom email feature (sett til false for å disable)
+  const ENABLE_CUSTOM_EMAIL = true;
+  const [customEmail, setCustomEmail] = useState('');
+  
+=======
   const [activeSignature, setActiveSignature] = useState(null);
   const activeSignatureRef = useRef(null);
+>>>>>>> 159fea50368f04d024f28b2c1f23ff9b81c0bf4f
   const initialFormData = {
     workType: '',
     location: '',
@@ -21,13 +105,11 @@ const HotWorkChecklist = () => {
     clientPhone: '',
     clientEmail: '',
     clientSignature: '',
-    sendToClient: true,
     executorName: '',
     executorPhone: '',
     executorEmail: '',
     executorCert: '',
     executorSignature: '',
-    sendToExecutor: true,
     watchName: '',
     watchPhone: '',
     watchCert: '',
@@ -604,7 +686,117 @@ const HotWorkChecklist = () => {
     }, 500);
   };
 
-  const sendEmail = () => {
+  const generatePDFBase64 = async () => {
+    let endDateToUse = formData.endDate;
+    let endTimeToUse = formData.endTime;
+    if (!endDateToUse || !endTimeToUse) {
+      const now = new Date();
+      endDateToUse = formatDateYYYYMMDD(now);
+      endTimeToUse = formatTimeHHMM(now);
+      setFormData(prev => ({ ...prev, endDate: endDateToUse, endTime: endTimeToUse }));
+      setTimeEnded(true);
+    }
+    const pdfContent = document.createElement('div');
+    pdfContent.style.padding = '20px';
+    pdfContent.style.fontFamily = 'Arial, sans-serif';
+    pdfContent.style.maxWidth = '800px';
+    
+    // Hent logo-kilde (Varme Arbeider)
+    const vaImg = document.querySelector('img[alt="Varme Arbeider"]');
+    const vaLogoSrc = vaImg ? vaImg.src : '';
+    
+    let imagesHTML = '';
+    if (images.length > 0) {
+      const imageElements = images.map((img, index) => {
+        return '<img src="' + img + '" style="width: 100%; height: 300px; object-fit: contain; border: 1px solid #ddd; display: block;" alt="Bilde ' + (index + 1) + '">';
+      }).join('');
+      
+      imagesHTML = '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
+    }
+    
+    const checklistBeforeHTML = t.items.slice(0, 14).map((item, index) => {
+      const checked = formData.checklist[index] ? '☑' : '☐';
+      const extra = index === 8 && formData.detectorDisconnectedBy ? '<br><span style="margin-left: 20px;"><em>Koblet ut av: ' + formData.detectorDisconnectedBy + '</em></span>' : '';
+      return '<div style="margin-bottom: 8px; font-size: 12px;"><span style="display: inline-block; width: 20px;">' + checked + '</span><strong>' + (index + 1) + '.</strong> ' + item + extra + '</div>';
+    }).join('');
+    
+    const checklistAfterHTML = t.items.slice(15, 18).map((item, index) => {
+      const checked = formData.checklist[index + 15] ? '☑' : '☐';
+      const extra = index === 1 && formData.detectorReconnectedBy ? '<br><span style="margin-left: 20px;"><em>Koblet inn av: ' + formData.detectorReconnectedBy + '</em></span>' : '';
+      return '<div style="margin-bottom: 8px; font-size: 12px;"><span style="display: inline-block; width: 20px;">' + checked + '</span><strong>' + (index + 16) + '.</strong> ' + item + extra + '</div>';
+    }).join('');
+    
+    const explosiveHTML = formData.explosiveArea ? '<div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 10px; margin: 15px 0; font-size: 12px;"><strong>☑ ' + t.explosiveTitle + '</strong><br><strong>15.</strong> ' + t.items[14] + '<br><em>Kontrollør: ' + (formData.controllerName || '-') + '</em></div>' : '';
+    
+    const clientSig = formData.clientSignature ? '<img src="' + formData.clientSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
+    const executorSig = formData.executorSignature ? '<img src="' + formData.executorSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
+    const watchSig = formData.watchSignature ? '<img src="' + formData.watchSignature + '" style="border: 1px solid #ddd; max-width: 200px; height: 60px;">' : '<p><em>Ingen signatur</em></p>';
+    
+    pdfContent.innerHTML = 
+      '<div style="display: flex; justify-content: flex-start; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">' +
+        (vaLogoSrc ? '<img src="' + vaLogoSrc + '" alt="Varme Arbeider" style="height: 80px;">' : '<div style="background: #00263A; color: white; padding: 10px 20px; border-radius: 4px; font-weight: bold;">Varme Arbeider</div>') +
+      '</div>' +
+      '<h1 style="font-size: 20px; margin-bottom: 10px;">' + t.title + '</h1>' +
+      '<p style="font-size: 12px; color: #666; margin-bottom: 20px;">' + t.subtitle + '</p>' +
+      '<div style="margin-bottom: 15px;"><strong>' + t.workType + '</strong> ' + (formData.workType || '-') + '</div>' +
+      '<div style="margin-bottom: 15px;"><strong>' + t.location + '</strong> ' + (formData.location || '-') + '</div>' +
+      '<div style="display: flex; gap: 20px; margin-bottom: 15px;">' +
+        '<div style="flex: 1;"><strong>' + t.startDateTime + '</strong><br>' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '</div>' +
+        '<div style="flex: 1;"><strong>' + t.endDateTime + '</strong><br>' + (endDateToUse || '-') + ' ' + (endTimeToUse || '-') + '</div>' +
+      '</div>' +
+      '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.client + '</h3>' +
+        '<p><strong>Navn:</strong> ' + (formData.clientName || '-') + '</p>' +
+        '<p><strong>' + t.phone + '</strong> ' + (formData.clientPhone || '-') + '</p>' +
+        '<p><strong>' + t.email + '</strong> ' + (formData.clientEmail || '-') + '</p>' +
+        clientSig +
+      '</div>' +
+      '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.executor + '</h3>' +
+        '<p><strong>Navn:</strong> ' + (formData.executorName || '-') + '</p>' +
+        '<p><strong>' + t.phone + '</strong> ' + (formData.executorPhone || '-') + '</p>' +
+        '<p><strong>' + t.email + '</strong> ' + (formData.executorEmail || '-') + '</p>' +
+        '<p><strong>' + t.certNr + '</strong> ' + (formData.executorCert || '-') + '</p>' +
+        executorSig +
+      '</div>' +
+      '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 15px;">' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px;">' + t.fireWatch + '</h3>' +
+        '<p><strong>Navn:</strong> ' + (formData.watchName || '-') + '</p>' +
+        '<p><strong>' + t.phone + '</strong> ' + (formData.watchPhone || '-') + '</p>' +
+        '<p><strong>' + t.certNr + '</strong> ' + (formData.watchCert || '-') + '</p>' +
+        watchSig +
+      '</div>' +
+      '<div style="border-top: 2px solid #333; padding-top: 15px; margin-top: 20px;">' +
+        '<h2 style="font-size: 16px; margin-bottom: 15px;">' + t.safetyReq + '</h2>' +
+        '<h3 style="font-size: 14px; margin-bottom: 10px; font-weight: bold;">' + t.beforeWork + '</h3>' +
+        checklistBeforeHTML +
+        explosiveHTML +
+        '<h3 style="font-size: 14px; margin-bottom: 10px; margin-top: 20px; font-weight: bold;">' + t.afterWork + '</h3>' +
+        checklistAfterHTML +
+      '</div>' +
+      imagesHTML +
+      '<div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 10px; color: #666;">' +
+        '<p>Generert: ' + new Date().toLocaleDateString('nb-NO') + ' ' + new Date().toLocaleTimeString('nb-NO') + '</p>' +
+      '</div>';
+
+    return new Promise((resolve) => {
+      const opt = {
+        margin: 10,
+        filename: 'sjekkliste-varmearbeider-' + (formData.location || 'dokument') + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+      };
+      
+      html2pdf().set(opt).from(pdfContent).toPdf().output('dataurlstring').then((pdfBase64) => {
+        // Fjern "data:application/pdf;base64," prefiks
+        const base64String = pdfBase64.split(',')[1];
+        resolve(base64String);
+      });
+    });
+  };
+
+  const sendEmailWithConfirmation = async () => {
     // Ensure end time is set at completion
     if (!formData.endDate || !formData.endTime) {
       const now = new Date();
@@ -613,84 +805,103 @@ const HotWorkChecklist = () => {
       setFormData(prev => ({ ...prev, endDate: endDateToUse, endTime: endTimeToUse }));
       setTimeEnded(true);
     }
-    const clientEmail = formData.clientEmail;
-    const executorEmail = formData.executorEmail;
-    const sendToClient = formData.sendToClient;
-    const sendToExecutor = formData.sendToExecutor;
-    
-    // Bygg liste over mottakere basert på valg
-    const recipients = [];
-    if (sendToClient && clientEmail) recipients.push(clientEmail);
-    if (sendToExecutor && executorEmail) recipients.push(executorEmail);
-    
-    if (recipients.length === 0) {
-      alert('Vennligst velg minst én mottaker og fyll inn e-postadresse');
+
+    // Hvis custom email er enabled og fylt inn, bruk den
+    if (ENABLE_CUSTOM_EMAIL && customEmail) {
+      // Valider custom email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customEmail)) {
+        alert('Ugyldig e-postadresse');
+        return;
+      }
+
+      // Vis bekreftelsesmodal med custom email
+      setEmailData({
+        recipients: [customEmail],
+        subject: 'Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument'),
+        workLocation: formData.location,
+        clientName: formData.clientName,
+      });
+      setShowConfirmModal(true);
       return;
     }
-  
-    const subject = encodeURIComponent('Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument'));
+
+    // Ellers bruk skjemaets e-poster
+    const recipients = [];
+    if (formData.clientEmail) recipients.push(formData.clientEmail);
+    if (formData.executorEmail) recipients.push(formData.executorEmail);
     
-    const checklistBefore = t.items.slice(0, 14).map((item, i) => {
-      const checked = formData.checklist[i] ? '[X]' : '[ ]';
-      return checked + ' ' + (i + 1) + '. ' + item;
-    }).join('%0D%0A');
+    if (recipients.length === 0) {
+      alert('Vennligst fyll inn minst én e-postadresse');
+      return;
+    }
+
+    // Vis bekreftelsesmodal
+    setEmailData({
+      recipients,
+      subject: 'Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument'),
+      clientEmail: formData.clientEmail,
+      executorEmail: formData.executorEmail,
+      workLocation: formData.location,
+      clientName: formData.clientName,
+    });
+    setShowConfirmModal(true);
+  };
+
+  const confirmSendEmail = async () => {
+    if (!emailData) return;
     
-    const checklistAfter = t.items.slice(15, 18).map((item, i) => {
-      const checked = formData.checklist[i + 15] ? '[X]' : '[ ]';
-      return checked + ' ' + (i + 16) + '. ' + item;
-    }).join('%0D%0A');
-    
-    const explosiveText = formData.explosiveArea ? '%0D%0A[X] EKSPLOSJONSFARLIGE ROM%0D%0AKontrollor: ' + (formData.controllerName || '-') + '%0D%0A' : '';
-    
-    const imagesText = images.length > 0 ? '%0D%0A%0D%0ADOKUMENTASJONSBILDER: ' + images.length + ' stk' : '';
-    
-    const body = 'SJEKKLISTE FOR VARME ARBEIDER%0D%0A' +
-      new Date().toLocaleDateString('nb-NO') + '%0D%0A%0D%0A' +
-      'ARBEIDETS ART: ' + encodeURIComponent(formData.workType || '-') + '%0D%0A' +
-      'ARBEIDSPLASS: ' + encodeURIComponent(formData.location || '-') + '%0D%0A%0D%0A' +
-      'START: ' + (formData.startDate || '-') + ' ' + (formData.startTime || '-') + '%0D%0A' +
-      'SLUTT: ' + (formData.endDate || '-') + ' ' + (formData.endTime || '-') + '%0D%0A%0D%0A' +
-      '--- OPPDRAGSGIVER ---%0D%0A' +
-      'Navn: ' + encodeURIComponent(formData.clientName || '-') + '%0D%0A' +
-      'Telefon: ' + (formData.clientPhone || '-') + '%0D%0A' +
-      'E-post: ' + clientEmail + '%0D%0A%0D%0A' +
-      '--- UTFORENDE ---%0D%0A' +
-      'Navn: ' + encodeURIComponent(formData.executorName || '-') + '%0D%0A' +
-      'Telefon: ' + (formData.executorPhone || '-') + '%0D%0A' +
-      'E-post: ' + executorEmail + '%0D%0A' +
-      'Sertifikat: ' + (formData.executorCert || '-') + '%0D%0A%0D%0A' +
-      '--- BRANNVAKT ---%0D%0A' +
-      'Navn: ' + encodeURIComponent(formData.watchName || '-') + '%0D%0A' +
-      'Telefon: ' + (formData.watchPhone || '-') + '%0D%0A' +
-      'Sertifikat: ' + (formData.watchCert || '-') + '%0D%0A%0D%0A' +
-      '--- SIKKERHETSKRAV ---%0D%0A' +
-      'FOR ARBEIDET STARTER:%0D%0A' +
-      checklistBefore + '%0D%0A' +
-      explosiveText + '%0D%0A' +
-      'OPPFOLGING ETTER AVSLUTTET ARBEID:%0D%0A' +
-      checklistAfter + 
-      imagesText + '%0D%0A%0D%0A' +
-      '---%0D%0A' +
-      'Dette dokumentet er generert digitalt.';
-  
-    const recipientsString = recipients.join(',');
-    const mailtoLink = 'mailto:' + recipientsString + '?subject=' + subject + '&body=' + body;
-    
-    // Prøv å åpne e-postklient
-    window.open(mailtoLink, '_self');
-    
-    // Gi beskjed til brukeren
-    setTimeout(() => {
-      let recipientInfo = 'E-post vil bli sendt til:\n';
-      if (sendToClient && clientEmail) recipientInfo += '✓ Oppdragsgiver: ' + clientEmail + '\n';
-      if (sendToExecutor && executorEmail) recipientInfo += '✓ Utførende: ' + executorEmail + '\n';
+    setSendingEmail(true);
+    try {
+      // Generer PDF som Base64
+      console.log('Genererer PDF...');
+      const pdfBase64 = await generatePDFBase64();
+      console.log('PDF generert, lengde:', pdfBase64.length);
       
-      if (images.length > 0) {
-        alert(recipientInfo + '\nMerk: Bildene (' + images.length + ' stk) må legges til som vedlegg manuelt.\n\nTips: Bruk "Generer PDF" knappen først for å lage ett dokument med alt inkludert.\n\nHvis e-postklienten ikke åpnes:\n- Kopier e-postadressene manuelt\n- Åpne Gmail/Outlook\n- Lim inn informasjonen');
-      } else {
-        alert(recipientInfo + '\nHvis e-postklienten ikke åpnes:\n- Kopier e-postadressene manuelt\n- Åpne Gmail/Outlook\n- Lim inn informasjonen');
+      if (!functions) {
+        throw new Error('Firebase ikke konfigurert. Sjekk .env-variablene.');
       }
-    }, 500);
+
+      // Kall Cloud Function via httpsCallable
+      console.log('Kaller Cloud Function med mottakere:', emailData.recipients);
+      const sendChecklist = httpsCallable(functions, 'sendChecklist');
+      
+      const result = await sendChecklist({
+        to: emailData.recipients,
+        subject: emailData.subject,
+        pdfBase64: pdfBase64,
+        workLocation: emailData.workLocation,
+        clientName: emailData.clientName,
+      });
+      
+      console.log('Cloud Function resultat:', result);
+      
+      setShowConfirmModal(false);
+      setSendingEmail(false);
+      alert('✅ E-post sendt med PDF vedlegg!');
+    } catch (error) {
+      setSendingEmail(false);
+      setShowConfirmModal(false);
+      console.error('E-post sending feilet - Full error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+      
+      let errorMessage = 'Kunne ikke sende e-post';
+      if (error.code === 'unauthenticated') {
+        errorMessage = 'Ingen tilgang til e-posttjenesten';
+      } else if (error.code === 'internal') {
+        errorMessage = error.message || 'Intern feil i e-posttjenesten';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      alert('❌ Feil ved sending: ' + errorMessage);
+    }
+  };
+
+  const sendEmail = () => {
+    sendEmailWithConfirmation();
   };
 
   const copyEmailContent = () => {
@@ -704,15 +915,13 @@ const HotWorkChecklist = () => {
     }
     const clientEmail = formData.clientEmail;
     const executorEmail = formData.executorEmail;
-    const sendToClient = formData.sendToClient;
-    const sendToExecutor = formData.sendToExecutor;
     
     const recipients = [];
-    if (sendToClient && clientEmail) recipients.push(clientEmail);
-    if (sendToExecutor && executorEmail) recipients.push(executorEmail);
+    if (clientEmail) recipients.push(clientEmail);
+    if (executorEmail) recipients.push(executorEmail);
     
     if (recipients.length === 0) {
-      alert('Vennligst velg minst én mottaker og fyll inn e-postadresse');
+      alert('Vennligst fyll inn minst én e-postadresse');
       return;
     }
   
@@ -821,7 +1030,19 @@ const HotWorkChecklist = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/5 via-accent/10 to-sand/5 py-8 px-4">
+    <>
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="Bekreft e-postsending"
+        message={`Skal vi sende sjekklisten som PDF vedlegg til:\n${emailData?.recipients?.join(', ') || ''}\n\nE-posten vil inneholde et fullt utfylt PDF-dokument med alle skjemaopplysninger.`}
+        onConfirm={confirmSendEmail}
+        onCancel={() => {
+          setShowConfirmModal(false);
+          setSendingEmail(false);
+        }}
+        isLoading={sendingEmail}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-accent/5 via-accent/10 to-sand/5 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-accent/10 rounded-lg shadow-lg border-2 border-primary/10" id="checklist-content">
         <div className="relative">
           <button
@@ -936,17 +1157,6 @@ const HotWorkChecklist = () => {
                 className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
             </div>
-            {formData.clientEmail && (
-  <label className="flex items-center gap-2 mb-4 p-3 bg-accent/20 rounded-lg border-2 border-accent/40 hover:bg-accent/30 transition-colors cursor-pointer">
-    <input
-      type="checkbox"
-      checked={formData.sendToClient}
-      onChange={(e) => setFormData(prev => ({ ...prev, sendToClient: e.target.checked }))}
-      className="w-4 h-4 accent-primary cursor-pointer"
-    />
-    <span className="text-sm font-medium text-primary">{t.sendToClientLabel} ({formData.clientEmail})</span>
-  </label>
-)}
             <div>
               <label className="block font-medium mb-2 text-primary">{t.signature}</label>
               <div className="relative">
@@ -1022,17 +1232,6 @@ const HotWorkChecklist = () => {
   className="px-3 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors bg-accent/10"
 />
             </div>
-            {formData.executorEmail && (
-  <label className="flex items-center gap-2 mb-4 p-3 bg-accent/20 rounded-lg border-2 border-accent/40 hover:bg-accent/30 transition-colors cursor-pointer">
-    <input
-      type="checkbox"
-      checked={formData.sendToExecutor}
-      onChange={(e) => setFormData(prev => ({ ...prev, sendToExecutor: e.target.checked }))}
-      className="w-4 h-4 accent-primary cursor-pointer"
-    />
-    <span className="text-sm font-medium text-primary">{t.sendToExecutorLabel} ({formData.executorEmail})</span>
-  </label>
-)}
             <div>
               <label className="block font-medium mb-2 text-primary">{t.signature}</label>
               <div className="relative">
@@ -1272,6 +1471,22 @@ const HotWorkChecklist = () => {
             )}
           </div>
 
+          {/* Custom Email Input - Temporary Feature */}
+          {ENABLE_CUSTOM_EMAIL && (
+            <div className="border-t-2 border-primary/30 pt-6 bg-accent/5 rounded-lg p-4">
+              <h3 className="font-bold mb-3 text-primary">🧪 Test: Egendefinert e-postmottaker</h3>
+              <p className="text-sm text-primaryDark mb-3">Denne funksjonen er midlertidig. Fyll inn e-postadressen som sjekklisten skal sendes til:</p>
+              <input
+                type="email"
+                placeholder="Skriv e-postadresse her"
+                value={customEmail}
+                onChange={(e) => setCustomEmail(e.target.value)}
+                className="w-full px-4 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
+              />
+              <p className="text-xs text-primaryDark mt-2">Hvis dette feltet er fyllt, sendes sjekklisten BARE til denne adressen.</p>
+            </div>
+          )}
+
           <div className="border-t-2 border-primary/30 pt-6 flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4">
   <button
     onClick={generatePDF}
@@ -1287,10 +1502,25 @@ const HotWorkChecklist = () => {
     <Mail size={20} />
     {t.sendEmail}
   </button>
+<<<<<<< HEAD
+  {/* Kommentert ut - Kopier e-post knappen
+  <button
+    onClick={copyEmailContent}
+    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-accent rounded-lg font-semibold hover:bg-primaryDark shadow-md hover:shadow-lg transition-all border-2 border-primary"
+    title={t.copyEmail}
+  >
+    <Mail size={20} />
+    <span className="hidden sm:inline">{t.copyEmail}</span>
+    <span className="sm:hidden">Kopier</span>
+  </button>
+  */}
+=======
+>>>>>>> 159fea50368f04d024f28b2c1f23ff9b81c0bf4f
 </div>
         </div>
       </div>
     </div>
+    </>
   );
 };
 

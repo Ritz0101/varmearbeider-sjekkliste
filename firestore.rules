@@ -1,18 +1,28 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // 🔒 SIKKERHET: Standard - Ingen tilgang uten autentisering
+    // Denne appen bruker ikke Firestore per nå, så vi stenger alt
     match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 12, 10);
+      allow read, write: if false;
     }
+    
+    // 📝 FREMTIDIG: Hvis du skal bruke Firestore senere, 
+    // erstatt "false" med faktisk autentiseringslogikk:
+    // allow read, write: if request.auth != null;
+    
+    // Eksempel for sjekkliste-lagring (kun for referanse):
+    // match /checklists/{checklistId} {
+    //   // Kun autentiserte brukere kan lese sine egne sjekklister
+    //   allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+    //   
+    //   // Kun autentiserte brukere kan opprette/oppdatere sine egne sjekklister
+    //   allow create, update: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    //   
+    //   // Kun eieren kan slette
+    //   allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    // }
   }
 }

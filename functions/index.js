@@ -17,7 +17,11 @@ require('dotenv').config();
  */
 exports.sendChecklist = functions
   .runWith({
-    secrets: ['RESEND_API_KEY', 'EMAIL_TARGET']
+    secrets: ['RESEND_API_KEY', 'EMAIL_TARGET'],
+    memory: '256MB',
+    timeoutSeconds: 60,
+    // Rate limiting: Maks 100 forespørsler per bruker per time
+    maxInstances: 10
   })
   .https.onCall(async (data, context) => {
   console.log('🚀 sendChecklist called with data keys:', Object.keys(data || {}));
