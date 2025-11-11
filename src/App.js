@@ -596,10 +596,11 @@ const HotWorkChecklist = () => {
     if (images.length > 0) {
       const imageElements = images.map((img, index) => {
         // Forbedret bilde-styling: Bevarer aspect ratio, forhindrer stretching
-        return '<div style="page-break-inside: avoid; break-inside: avoid; margin-bottom: 10px;"><img src="' + img + '" style="max-width: 100%; max-height: 280px; width: auto; height: auto; object-fit: contain; border: 1px solid #ddd; display: block; margin: 0 auto;" alt="Bilde ' + (index + 1) + '"></div>';
+        // Bruker inline-block i stedet for grid for bedre kontroll
+        return '<div style="page-break-inside: avoid; break-inside: avoid; width: 48%; display: inline-block; vertical-align: top; margin-bottom: 15px; margin-right: 2%; text-align: center;"><img src="' + img + '" style="max-width: 100%; height: auto; max-height: 250px; object-fit: contain; border: 1px solid #ddd;" alt="Bilde ' + (index + 1) + '"><p style="font-size: 10px; color: #666; margin-top: 5px;">Bilde ' + (index + 1) + '</p></div>';
       }).join('');
       
-      imagesHTML = '<div style="page-break-before: always; break-before: page; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
+      imagesHTML = '<div style="page-break-before: always; break-before: page; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="width: 100%;">' + imageElements + '</div></div>';
     }
     
     const checklistBeforeHTML = t.items.slice(0, 14).map((item, index) => {
@@ -698,11 +699,12 @@ const HotWorkChecklist = () => {
     let imagesHTML = '';
     if (images.length > 0) {
       const imageElements = images.map((img, index) => {
-        // Forbedret bilde-styling: Bevarer aspect ratio, forhindrer stretching og sideskift
-        return '<div style="page-break-inside: avoid; break-inside: avoid; margin-bottom: 10px;"><img src="' + img + '" style="max-width: 100%; max-height: 280px; width: auto; height: auto; object-fit: contain; border: 1px solid #ddd; display: block; margin: 0 auto;" alt="Bilde ' + (index + 1) + '"></div>';
+        // Forbedret bilde-styling: Bevarer aspect ratio, forhindrer stretching
+        // Bruker flex i stedet for grid for bedre kontroll over aspect ratio
+        return '<div style="page-break-inside: avoid; break-inside: avoid; width: 48%; display: inline-block; vertical-align: top; margin-bottom: 15px; margin-right: 2%; text-align: center;"><img src="' + img + '" style="max-width: 100%; height: auto; max-height: 250px; object-fit: contain; border: 1px solid #ddd;" alt="Bilde ' + (index + 1) + '"><p style="font-size: 10px; color: #666; margin-top: 5px;">Bilde ' + (index + 1) + '</p></div>';
       }).join('');
       
-      imagesHTML = '<div style="page-break-before: always; break-before: page; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
+      imagesHTML = '<div style="page-break-before: always; break-before: page; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="width: 100%;">' + imageElements + '</div></div>';
     }
     
     const checklistBeforeHTML = t.items.slice(0, 14).map((item, index) => {
