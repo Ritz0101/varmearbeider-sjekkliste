@@ -81,10 +81,6 @@ const HotWorkChecklist = () => {
   const [emailData, setEmailData] = useState(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   
-  // Toggle for custom email feature (sett til false for å disable)
-  const ENABLE_CUSTOM_EMAIL = true;
-  const [customEmail, setCustomEmail] = useState('');
-  
   const [activeSignature, setActiveSignature] = useState(null);
   const activeSignatureRef = useRef(null);
   const initialFormData = {
@@ -799,33 +795,19 @@ const HotWorkChecklist = () => {
       setTimeEnded(true);
     }
 
-    // Hvis custom email er enabled og fylt inn, bruk den
-    if (ENABLE_CUSTOM_EMAIL && customEmail) {
-      // Valider custom email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(customEmail)) {
-        alert('Ugyldig e-postadresse');
-        return;
-      }
-
-      // Vis bekreftelsesmodal med custom email
-      setEmailData({
-        recipients: [customEmail],
-        subject: 'Sjekkliste for varme arbeider - ' + (formData.location || 'Dokument'),
-        workLocation: formData.location,
-        clientName: formData.clientName,
-      });
-      setShowConfirmModal(true);
-      return;
-    }
-
-    // Ellers bruk skjemaets e-poster
+    // Samle e-postadresser fra oppdragsgiver og utførende
     const recipients = [];
-    if (formData.clientEmail) recipients.push(formData.clientEmail);
-    if (formData.executorEmail) recipients.push(formData.executorEmail);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (formData.clientEmail && emailRegex.test(formData.clientEmail)) {
+      recipients.push(formData.clientEmail);
+    }
+    if (formData.executorEmail && emailRegex.test(formData.executorEmail)) {
+      recipients.push(formData.executorEmail);
+    }
     
     if (recipients.length === 0) {
-      alert('Vennligst fyll inn minst én e-postadresse');
+      alert('Vennligst fyll inn minst én gyldig e-postadresse for oppdragsgiver eller utførende');
       return;
     }
 
@@ -1027,7 +1009,7 @@ const HotWorkChecklist = () => {
       <ConfirmModal
         isOpen={showConfirmModal}
         title="Bekreft e-postsending"
-        message={`Skal vi sende sjekklisten som PDF vedlegg til:\n${emailData?.recipients?.join(', ') || ''}\n\nE-posten vil inneholde et fullt utfylt PDF-dokument med alle skjemaopplysninger.`}
+        message={`Sjekklisten vil bli sendt som PDF vedlegg til:\n\n${emailData?.recipients?.join('\n') || ''}\n\nE-posten vil inneholde hele det utfylte PDF-dokumentet med alle skjemaopplysninger og signaturer.`}
         onConfirm={confirmSendEmail}
         onCancel={() => {
           setShowConfirmModal(false);
@@ -1463,22 +1445,6 @@ const HotWorkChecklist = () => {
               </div>
             )}
           </div>
-
-          {/* Custom Email Input - Temporary Feature */}
-          {ENABLE_CUSTOM_EMAIL && (
-            <div className="border-t-2 border-primary/30 pt-6 bg-accent/5 rounded-lg p-4">
-              <h3 className="font-bold mb-3 text-primary">🧪 Test: Egendefinert e-postmottaker</h3>
-              <p className="text-sm text-primaryDark mb-3">Denne funksjonen er midlertidig. Fyll inn e-postadressen som sjekklisten skal sendes til:</p>
-              <input
-                type="email"
-                placeholder="Skriv e-postadresse her"
-                value={customEmail}
-                onChange={(e) => setCustomEmail(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-accent/50 rounded focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
-              />
-              <p className="text-xs text-primaryDark mt-2">Hvis dette feltet er fyllt, sendes sjekklisten BARE til denne adressen.</p>
-            </div>
-          )}
 
           <div className="border-t-2 border-primary/30 pt-6 flex flex-col sm:flex-row gap-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-lg p-4">
   <button
