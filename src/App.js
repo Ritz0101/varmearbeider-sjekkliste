@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-<<<<<<< HEAD
-import { Camera, Download, Mail, X, AlertCircle } from 'lucide-react';
+import { Camera, Download, Mail, X, AlertCircle, Check } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions';
 import html2pdf from 'html2pdf.js';
@@ -70,9 +69,6 @@ const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel, isLoading }
     </div>
   );
 };
-=======
-import { Camera, Download, Mail, X, Check } from 'lucide-react';
->>>>>>> 159fea50368f04d024f28b2c1f23ff9b81c0bf4f
 
 const HotWorkChecklist = () => {
   const DRAFT_KEY = 'va_checklist_draft_v1';
@@ -81,7 +77,6 @@ const HotWorkChecklist = () => {
   const [certNumber, setCertNumber] = useState('');
   const [images, setImages] = useState([]);
   const [timeEnded, setTimeEnded] = useState(false);
-<<<<<<< HEAD
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [emailData, setEmailData] = useState(null);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -90,10 +85,8 @@ const HotWorkChecklist = () => {
   const ENABLE_CUSTOM_EMAIL = true;
   const [customEmail, setCustomEmail] = useState('');
   
-=======
   const [activeSignature, setActiveSignature] = useState(null);
   const activeSignatureRef = useRef(null);
->>>>>>> 159fea50368f04d024f28b2c1f23ff9b81c0bf4f
   const initialFormData = {
     workType: '',
     location: '',
@@ -1502,7 +1495,6 @@ const HotWorkChecklist = () => {
     <Mail size={20} />
     {t.sendEmail}
   </button>
-<<<<<<< HEAD
   {/* Kommentert ut - Kopier e-post knappen
   <button
     onClick={copyEmailContent}
@@ -1514,8 +1506,6 @@ const HotWorkChecklist = () => {
     <span className="sm:hidden">Kopier</span>
   </button>
   */}
-=======
->>>>>>> 159fea50368f04d024f28b2c1f23ff9b81c0bf4f
 </div>
         </div>
       </div>
