@@ -119,7 +119,7 @@ const HotWorkChecklist = () => {
       certLabel: 'Sertifikatnummer',
       loginBtn: 'Logg inn',
       certError: 'Feil passord',
-      workType: 'Arbeidets art:',
+      workType: 'Arbeid utført:',
       location: 'Arbeidsplass/adresse:',
       startDateTime: 'Når arbeidet starter:',
       endDateTime: 'Når arbeidet avsluttes:',
@@ -595,10 +595,11 @@ const HotWorkChecklist = () => {
     let imagesHTML = '';
     if (images.length > 0) {
       const imageElements = images.map((img, index) => {
-        return '<img src="' + img + '" style="width: 100%; height: 300px; object-fit: contain; border: 1px solid #ddd; display: block;" alt="Bilde ' + (index + 1) + '">';
+        // Forbedret bilde-styling: Bevarer aspect ratio, forhindrer stretching
+        return '<div style="page-break-inside: avoid; break-inside: avoid; margin-bottom: 10px;"><img src="' + img + '" style="max-width: 100%; max-height: 280px; width: auto; height: auto; object-fit: contain; border: 1px solid #ddd; display: block; margin: 0 auto;" alt="Bilde ' + (index + 1) + '"></div>';
       }).join('');
       
-      imagesHTML = '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
+      imagesHTML = '<div style="page-break-before: always; break-before: page; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
     }
     
     const checklistBeforeHTML = t.items.slice(0, 14).map((item, index) => {
@@ -697,10 +698,11 @@ const HotWorkChecklist = () => {
     let imagesHTML = '';
     if (images.length > 0) {
       const imageElements = images.map((img, index) => {
-        return '<img src="' + img + '" style="width: 100%; height: 300px; object-fit: contain; border: 1px solid #ddd; display: block;" alt="Bilde ' + (index + 1) + '">';
+        // Forbedret bilde-styling: Bevarer aspect ratio, forhindrer stretching og sideskift
+        return '<div style="page-break-inside: avoid; break-inside: avoid; margin-bottom: 10px;"><img src="' + img + '" style="max-width: 100%; max-height: 280px; width: auto; height: auto; object-fit: contain; border: 1px solid #ddd; display: block; margin: 0 auto;" alt="Bilde ' + (index + 1) + '"></div>';
       }).join('');
       
-      imagesHTML = '<div style="border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
+      imagesHTML = '<div style="page-break-before: always; break-before: page; border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px;"><h3 style="font-size: 14px; margin-bottom: 10px;">Dokumentasjonsbilder (' + images.length + ')</h3><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; align-items: start;">' + imageElements + '</div></div>';
     }
     
     const checklistBeforeHTML = t.items.slice(0, 14).map((item, index) => {
@@ -772,9 +774,29 @@ const HotWorkChecklist = () => {
       const opt = {
         margin: 10,
         filename: 'sjekkliste-varmearbeider-' + (formData.location || 'dokument') + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { 
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          imageTimeout: 0,
+          logging: false,
+          scrollY: 0,
+          scrollX: 0,
+          windowWidth: 800
+        },
+        jsPDF: { 
+          orientation: 'portrait', 
+          unit: 'mm', 
+          format: 'a4',
+          compress: true
+        },
+        pagebreak: { 
+          mode: ['avoid-all', 'css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: ['img', '.page-break-inside-avoid']
+        }
       };
       
       html2pdf().set(opt).from(pdfContent).toPdf().output('dataurlstring').then((pdfBase64) => {
